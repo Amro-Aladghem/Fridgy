@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace SallaJo.MiddleWares
+namespace FridgyApi.MiddleWares
 {
     public class GlobalExeptionMiddleware
     {
