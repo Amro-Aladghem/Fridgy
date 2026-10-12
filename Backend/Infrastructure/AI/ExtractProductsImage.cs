@@ -1,4 +1,5 @@
-﻿using Mscc.GenerativeAI;
+﻿using Infrastructure.ExternalServices;
+using Mscc.GenerativeAI;
 using Mscc.GenerativeAI.Types;
 
 namespace Infrastructure.AI

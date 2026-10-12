@@ -1,5 +1,6 @@
 ﻿using Application.Dtos;
 using Application.Services;
+using Infrastructure.AI;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,13 @@ namespace Application.Tools
     {
         private readonly InventoryService _inventoryService;
         private readonly ProductService _productService;
+        private readonly ExtractProductsImage _extractProductsImage;
 
-        public InventoryTool(InventoryService inventoryService, ProductService productService)
+        public InventoryTool(InventoryService inventoryService, ProductService productService, ExtractProductsImage extractProductsImage)
         {
             _inventoryService = inventoryService;
             _productService = productService;   
+            _extractProductsImage = extractProductsImage;
         }
 
         public async Task<ToolResponse> ExecuteCreateInventory(InventoryDto dto)
@@ -71,6 +74,33 @@ namespace Application.Tools
         public async Task<ToolResponse> ExecuteGetProductByName(Guid inventoryId, string name)
         {
             return await ExecuteTool<ProductDto?>(()=>_productService.GetProductByName(inventoryId, name));
+        }
+
+        public async Task<ToolResponse> ExecuteExtractProductsImage(ExtractImageDto extractImageDto)
+        {
+            try
+            {
+                var result = _extractProductsImage.ExtractProductsFromImageAsString(extractImageDto.InventoryId,
+                    extractImageDto.LanguageName, extractImageDto.ImageUri, extractImageDto.ImageType);
+
+                if (result is null)
+                    throw new Exception("Failed to extract products from image please try once more time only");
+
+                return new ToolResponse()
+                {
+                    Success = true,
+                    Message = "Extracted Products From Image Have Done,These Are the products,you can continue your workflow",
+                    Data = result.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ToolResponse()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }
