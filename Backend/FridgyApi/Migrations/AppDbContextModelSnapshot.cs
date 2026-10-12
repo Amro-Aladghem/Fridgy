@@ -22,6 +22,80 @@ namespace FridgyApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Enities.Chat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ChatRoleId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ChatSignature")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("InventoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatRoleId");
+
+                    b.HasIndex("InventoryId");
+
+                    b.ToTable("Chats");
+                });
+
+            modelBuilder.Entity("Domain.Enities.ChatRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChatRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Agent"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Tool"
+                        });
+                });
+
             modelBuilder.Entity("Domain.Enities.Inventory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -217,6 +291,25 @@ namespace FridgyApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SysProducts");
+                });
+
+            modelBuilder.Entity("Domain.Enities.Chat", b =>
+                {
+                    b.HasOne("Domain.Enities.ChatRole", "ChatRole")
+                        .WithMany()
+                        .HasForeignKey("ChatRoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Enities.Inventory", "Inventory")
+                        .WithMany()
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChatRole");
+
+                    b.Navigation("Inventory");
                 });
 
             modelBuilder.Entity("Domain.Enities.Notification", b =>

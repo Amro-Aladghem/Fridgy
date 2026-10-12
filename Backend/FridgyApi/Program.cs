@@ -17,6 +17,7 @@ builder.Services.AddSingleton<GenerationConfig>(gc => new GenerationConfig() { R
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<ChatService>();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);

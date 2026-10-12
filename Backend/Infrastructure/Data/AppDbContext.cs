@@ -20,6 +20,12 @@ namespace Infrastructure.Data
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            modelBuilder.Entity<ChatRole>().HasData(
+                new ChatRole { Id = 1, Name = "Agent" },
+                new ChatRole { Id = 2, Name = "User" },
+                new ChatRole { Id = 3, Name = "Tool" }
+            );
         }
 
         public DbSet<Inventory> Inventories { get; set; }
@@ -30,5 +36,7 @@ namespace Infrastructure.Data
         public DbSet<ShoppingList> ShoppingLists { get; set; }
         public DbSet<ShoppingListProduct> ShoppingListProducts { get; set; }
         public DbSet<SysProduct> SysProducts { get; set; }  
+        public DbSet<Chat> Chats { get; set; }  
+        public DbSet<ChatRole> ChatRoles { get; set; }
     }
 }
