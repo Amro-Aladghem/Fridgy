@@ -35,20 +35,24 @@ namespace Application.Services
             return ToDto(chat);
         }
 
-        public async Task<List<ChatDto>> GetChatsForChatId(Guid inventoryId, Guid chatSignature)
+        public async Task<List<ChatDto>?> GetChatsForChatId(Guid inventoryId, Guid chatSignature)
         {
-            return await _context.Chats
+            List<ChatDto> chats= await _context.Chats
                 .Where(c => c.InventoryId == inventoryId && c.ChatSignature == chatSignature)
                 .OrderBy(c => c.CreationTime)
                 .Select(c => ToDto(c))
                 .ToListAsync();
+
+            if (chats.Count == 0)
+                return null;
+
+            return chats;
         }
 
         private static ChatDto ToDto(Chat c)
         {
             return new ChatDto
             {
-                Id = c.Id,
                 ChatSignature = c.ChatSignature,
                 InventoryId = c.InventoryId,
                 Name = c.Name,

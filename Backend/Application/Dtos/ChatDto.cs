@@ -2,7 +2,6 @@ namespace Application.Dtos
 {
     public class ChatDto
     {
-        public Guid Id { get; set; }
         public Guid ChatSignature { get; set; }
         public Guid InventoryId { get; set; }
         public string? Name { get; set; }
