@@ -26,6 +26,12 @@ namespace Infrastructure.Data
                 new ChatRole { Id = 2, Name = "User" },
                 new ChatRole { Id = 3, Name = "Tool" }
             );
+
+            modelBuilder.Entity<ProductStatus>().HasData(
+                new ProductStatus { Id = 1, Name = "Unknown", },
+                new ProductStatus { Id = 2, Name = "Known" },
+                new ProductStatus { Id = 3, Name = "Expired" }
+            );
         }
 
         public DbSet<Inventory> Inventories { get; set; }

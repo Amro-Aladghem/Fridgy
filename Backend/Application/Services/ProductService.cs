@@ -136,6 +136,38 @@ namespace Application.Services
                 .FirstOrDefaultAsync();
         }
 
+        private async Task<bool> _UpdateProductImage(SysProductSearchResultDto searchResultDtos)
+        {
+            int numberOfRowsAffected = await _context.Products.Where(p=>p.Id==searchResultDtos.ProductId)
+                .ExecuteUpdateAsync(s=>s.SetProperty(p=>p.ImageUrl,searchResultDtos.ImageUrl));
+
+            return numberOfRowsAffected>0;
+        }
+
+        public async Task<bool> UpdateProductsImages(List<SysProductSearchResultDto> searchResultDtos)
+        {
+            foreach(var searchResult in searchResultDtos)
+            {
+                await _UpdateProductImage(searchResult);
+            }
+            return true;
+        }
+
+        private async Task _UpdateProductStatus(ProductStatusDto productStatusDto)
+        {
+            int rowAffected = await _context.Products.Where(p=>p.Id==productStatusDto.ProductId)
+                .ExecuteUpdateAsync(s=>s.SetProperty(p=>p.ProductStatusId,productStatusDto.ProductStatusId));
+        }
+
+        public async Task<bool> UpdateProductsStatus(List<ProductStatusDto> productsStatusDto)
+        {
+            foreach (var productStatusDto in productsStatusDto)
+            {
+                await _UpdateProductStatus(productStatusDto);
+            }
+            return true;
+        }
+
         private static ProductDto ToDto(Product p)
         {
             return new ProductDto
@@ -153,5 +185,6 @@ namespace Application.Services
                 CreationDate = p.CreationDate
             };
         }
+
     }
 }

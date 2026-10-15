@@ -223,6 +223,23 @@ namespace FridgyApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProductStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Unknown"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Known"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Expired"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Enities.ShoppingList", b =>
