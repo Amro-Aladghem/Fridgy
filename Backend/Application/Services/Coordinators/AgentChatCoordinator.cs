@@ -1,4 +1,5 @@
 ﻿using Application.Dtos;
+using Domain.Enums;
 using Infrastructure.AI;
 using System;
 using System.Collections.Generic;
@@ -16,14 +17,13 @@ namespace Application.Services.Coordinators
             _chatService = chatService;
         }
 
-        public async Task<AgentResponseDto?> GenerateAgentResponse(Guid chatSignture,Guid inventoryId,IAgentChat agentChat,
-            string message,string role)
+        public async Task<AgentResponseDto?> GenerateAgentResponse(Guid chatSignture,Guid inventoryId,IAgentChat agentChat)
         {
             try
             {
                 List<ChatDto>? chatHistory = await _chatService.GetChatsForChatId(inventoryId, chatSignture);
 
-                string? response = await agentChat.Chat(inventoryId, chatHistory, message, role);
+                string? response = await agentChat.Chat(inventoryId, chatHistory);
 
                 if (response is null)
                     return null;
@@ -33,7 +33,18 @@ namespace Application.Services.Coordinators
                     PropertyNameCaseInsensitive = false
                 };
 
-                return JsonSerializer.Deserialize<AgentResponseDto>(response, options)!;
+                AgentResponseDto agentResponseDto =  JsonSerializer.Deserialize<AgentResponseDto>(response, options)!;
+
+                ChatDto chatDto = await _chatService.CreateChat(inventoryId, new ChatDto()
+                {
+                    Message = response,
+                    ChatRoleId = (int)eChatRole.Agent,
+                    ChatSignature = chatSignture,
+                    InventoryId = inventoryId,
+                    CreationTime = DateTime.UtcNow,
+                });
+
+                return agentResponseDto;
             }
             catch
             {

@@ -22,22 +22,22 @@ namespace Infrastructure.AI
             Path.Combine(AppContext.BaseDirectory, "Resources", "InventoryAgentSysPrompt.txt")
         ));
 
-        private string CreateFormatedPrompt(object? messagesContext, string message, string role, Guid inventoryId)
+        private string CreateFormatedPrompt(object? messagesContext, Guid inventoryId)
         {
             string messagesContextAsString = "There is no previous context yet";
 
             if (messagesContext is not null)
-                messagesContextAsString = "The Previous Context:" + JsonSerializer.Serialize(messagesContext);
+                messagesContextAsString = "The Chat Context:" + JsonSerializer.Serialize(messagesContext);
 
-            string prompt = $"The INVENTORY_ID={inventoryId},{messagesContext},What to do now:{message} From {role}";
+            string prompt = $"The INVENTORY_ID={inventoryId},{messagesContext}";
 
             return prompt ;
         }
 
-        public async Task<string?> Chat(Guid inventoryId, object? messagesContext, string message, string role)
+        public async Task<string?> Chat(Guid inventoryId, object? messagesContext)
         {
 
-            string prompt = CreateFormatedPrompt(messagesContext, message, role, inventoryId);
+            string prompt = CreateFormatedPrompt(messagesContext, inventoryId);
 
             var request = new GenerateContentRequest(prompt, generationConfig: _generationConfiq, systemInstruction: InventoryAgentSysPrompt);
 
