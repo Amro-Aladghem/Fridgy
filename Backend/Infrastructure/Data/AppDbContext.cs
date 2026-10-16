@@ -1,12 +1,10 @@
 ﻿using Domain.Enities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Infrastructure.Data
 {
-    public class AppDbContext: DbContext
+    public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -27,6 +25,19 @@ namespace Infrastructure.Data
                 new ChatRole { Id = 3, Name = "Tool" }
             );
 
+            modelBuilder.Entity<Notification>().Property(p => p.NotficationStatus)
+                .HasConversion(
+                status => status.ToString(),
+                status => Enum.Parse<eNotificationStatus>(status)
+            );
+
+            modelBuilder.Entity<Notification>().Property(p => p.AgentType)
+                .HasConversion(
+                agentType => agentType.ToString(),
+                agentType => Enum.Parse<eAgentType>(agentType)
+            );
+
+
             modelBuilder.Entity<ProductStatus>().HasData(
                 new ProductStatus { Id = 1, Name = "Unknown", },
                 new ProductStatus { Id = 2, Name = "Known" },
@@ -38,11 +49,10 @@ namespace Infrastructure.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductStatus> ProductStatuses { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<NotificationType> NotificationTypes { get; set; }  
         public DbSet<ShoppingList> ShoppingLists { get; set; }
         public DbSet<ShoppingListProduct> ShoppingListProducts { get; set; }
-        public DbSet<SysProduct> SysProducts { get; set; }  
-        public DbSet<Chat> Chats { get; set; }  
+        public DbSet<SysProduct> SysProducts { get; set; }
+        public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatRole> ChatRoles { get; set; }
     }
 }

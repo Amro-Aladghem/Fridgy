@@ -26,7 +26,9 @@ namespace Application.Services
                 ImageUrl = dto.ImageUrl,
                 ImageType = dto.ImageType,
                 ChatRoleId = dto.ChatRoleId,
-                Message = dto.Message
+                Message = dto.Message,
+                Data=dto.Data,
+                ShowMessage=dto.ShowMessage
             };
 
             _context.Chats.Add(chat);
@@ -38,7 +40,7 @@ namespace Application.Services
         public async Task<List<ChatDto>?> GetChatsForChatId(Guid inventoryId, Guid chatSignature)
         {
             List<ChatDto> chats= await _context.Chats
-                .Where(c => c.InventoryId == inventoryId && c.ChatSignature == chatSignature)
+                .Where(c => c.InventoryId == inventoryId && c.ChatSignature == chatSignature && c.ShowMessage)
                 .OrderBy(c => c.CreationTime)
                 .Select(c => ToDto(c))
                 .ToListAsync();
@@ -60,7 +62,8 @@ namespace Application.Services
                 ImageUrl = c.ImageUrl,
                 ImageType = c.ImageType,
                 ChatRoleId = c.ChatRoleId,
-                Message = c.Message
+                Message = c.Message,
+                Data=c.Data
             };
         }
     }

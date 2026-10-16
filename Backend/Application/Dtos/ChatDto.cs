@@ -10,5 +10,7 @@ namespace Application.Dtos
         public string? ImageType { get; set; }
         public int ChatRoleId { get; set; }
         public string Message { get; set; }
+        public string? Data { get; set; }
+        public bool ShowMessage { get; set; } = false;
     }
 }

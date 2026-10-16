@@ -15,6 +15,8 @@ namespace Domain.Enities
         public string? ImageType { get; set; }
         public int ChatRoleId { get; set; }
         public string Message { get; set; }
+        public string ?Data{ get; set; }
+        public bool ShowMessage { get; set; } = false;
 
         public ChatRole ChatRole { get; set; } = null!;
         public Inventory Inventory { get; set; } = null!;

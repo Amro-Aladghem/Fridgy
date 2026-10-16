@@ -1,5 +1,6 @@
 ﻿using Application.Dtos;
 using Domain.Enities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,9 +19,14 @@ namespace Application.Services
         {
             var notification = new Notification
             {
+                Id = Guid.NewGuid(),
                 InventoryId = inventoryId,
+                ChatSignture = dto.ChatId,
                 Text = dto.Text,
-                NotificationTypeId = dto.NotificationTypeId
+                NotficationStatus = Enum.Parse<eNotificationStatus>(dto.NotificationStatus, true),
+                AgentType = Enum.Parse<eAgentType>(dto.AgentType, true),
+                Data = dto.Data,
+                UpdatedAt = DateTime.UtcNow
             };
 
             _context.Notifications.Add(notification);
@@ -29,35 +35,31 @@ namespace Application.Services
             return ToDto(notification);
         }
 
-        public async Task<List<NotificationDto>> GetNotificationsForInventory(Guid inventoryId)
+        public async Task<List<NotificationDto>> GetNotificationsForChatId(Guid inventoryId, Guid chatId)
+        {
+            return await _context.Notifications
+                .Where(n => n.InventoryId == inventoryId && n.ChatSignture == chatId)
+                .Select(n => ToDto(n))
+                .ToListAsync();
+        }
+
+        public async Task<List<NotificationDto>> GetNotificationsForInventoryId(Guid inventoryId)
         {
             return await _context.Notifications
                 .Where(n => n.InventoryId == inventoryId)
+                .OrderBy(n => n.UpdatedAt)
                 .Select(n => ToDto(n))
                 .ToListAsync();
         }
 
-        public async Task<bool> DeleteNotification(Guid inventoryId, Guid id)
-        {
-            var notification = await _context.Notifications
-                .FirstOrDefaultAsync(n => n.Id == id && n.InventoryId == inventoryId);
-
-            if (notification is null)
-                return false;
-
-            _context.Notifications.Remove(notification);
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<List<NotificationDto>> GetNotificationWithSpecificStatus(Guid inventoryId, Guid notificationTypeId)
+        public async Task<List<NotificationDto>> GetNotificationsForSpecificStatus(Guid inventoryId, eNotificationStatus status)
         {
             return await _context.Notifications
-                .Where(n => n.InventoryId == inventoryId && n.NotificationTypeId == notificationTypeId)
+                .Where(n => n.InventoryId == inventoryId && n.NotficationStatus == status)
                 .Select(n => ToDto(n))
                 .ToListAsync();
         }
+
 
         private static NotificationDto ToDto(Notification n)
         {
@@ -65,8 +67,12 @@ namespace Application.Services
             {
                 Id = n.Id,
                 InventoryId = n.InventoryId,
+                ChatId = n.ChatSignture,
                 Text = n.Text,
-                NotificationTypeId = n.NotificationTypeId
+                NotificationStatus = n.NotficationStatus.ToString(),
+                AgentType = n.AgentType.ToString(),
+                Data = n.Data,
+                UpdatedAt = n.UpdatedAt
             };
         }
     }

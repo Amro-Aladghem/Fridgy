@@ -1,9 +1,12 @@
+using Application.Dtos;
 using Application.Services;
 using FridgyApi.MiddleWares;
+using Infrastructure.Backgroundworkers;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Mscc.GenerativeAI;
 using Mscc.GenerativeAI.Types;
+using System.Threading.Channels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSingleton<GoogleAI>(sp => new GoogleAI(apiKey: builder.Configuration.GetSection("geminiApi").Value!));
 builder.Services.AddSingleton<GenerationConfig>(gc => new GenerationConfig() { ResponseMimeType = "application/json", Temperature = 0 });
+
+
+builder.Services.AddSingleton<Channel<AgentRequestDto>>(
+    _ => Channel.CreateUnbounded<AgentRequestDto>()
+);
+
+builder.Services.AddHostedService<AgentBackgroundWorker>();
 
 
 builder.Services.AddScoped<ProductService>();

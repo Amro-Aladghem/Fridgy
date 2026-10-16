@@ -11,5 +11,6 @@ namespace Application.Dtos
         public Guid InventoryId { get; set; }
         public string Message { get; set; }
         public string?ImageUri { get; set; }
+        public string?AgentType { get; set;  }
     }
 }

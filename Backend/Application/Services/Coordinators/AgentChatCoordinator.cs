@@ -42,6 +42,8 @@ namespace Application.Services.Coordinators
                     ChatSignature = chatSignture,
                     InventoryId = inventoryId,
                     CreationTime = DateTime.UtcNow,
+                    ShowMessage = agentResponseDto.IsFinished || agentResponseDto.AskUser,
+                    Data=agentResponseDto.Products?.ToString()
                 });
 
                 return agentResponseDto;

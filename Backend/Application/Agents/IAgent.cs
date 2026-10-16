@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Domain.Enums
+namespace Application.Agents
 {
-    public enum eNotificationType
+    public interface IAgent
     {
     }
 }

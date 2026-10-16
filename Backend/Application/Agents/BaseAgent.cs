@@ -1,68 +1,40 @@
 ﻿using Application.Dtos;
+using Application.Services;
 using Application.Services.Coordinators;
 using Application.Tools.Coordinator;
+using Domain.Enums;
 using Infrastructure.AI;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace Application.Agents
 {
-    public abstract class BaseAgent
+    public abstract class BaseAgent : IAgent
     {
         private readonly AgentChatCoordinator _agentChatCoordinator;
         private readonly ToolChatCoordinator _toolChatCoordinator;
+        private readonly NotificationService _notificationService;
         private readonly IAgentChat _agentChat;
 
+        protected abstract eAgentType _AgentType { get; }
+
         private int _aiRetryCount;
-        public BaseAgent(AgentChatCoordinator agentChatCoordinator, ToolChatCoordinator toolChatCoordinator,IConfiguration configuration,
-            IAgentChat agentChat)
+        public BaseAgent(
+            AgentChatCoordinator agentChatCoordinator, 
+            ToolChatCoordinator toolChatCoordinator,
+            IConfiguration configuration,
+            IAgentChat agentChat,
+            NotificationService notificationService
+         )
         {
             _agentChatCoordinator = agentChatCoordinator;
             _toolChatCoordinator = toolChatCoordinator;
             _agentChat = agentChat;
             _aiRetryCount = configuration.GetValue<int>("aiRetryCount");
-        }
-
-        private async Task<AgentRunResultDto> HandleAgentResponse(AgentResponseDto agentResponseDto, Guid inventoryId, Guid chatSignture)
-        {
-            AgentRunResultDto agentRunResultDto = new AgentRunResultDto();
-
-            if (agentResponseDto.HasError)
-            {
-                agentRunResultDto.HasError = true;
-                return agentRunResultDto;
-            }
-
-            if (agentResponseDto.IsFinished)
-            {
-                agentRunResultDto.IsFinished = true;
-                agentRunResultDto.Message = agentResponseDto.Message;
-                agentRunResultDto.Products = agentResponseDto.Products;
-                return agentRunResultDto;
-            }
-
-            if (agentResponseDto.AskUser)
-            {
-                agentRunResultDto.AskUser = true;
-                agentRunResultDto.Message = agentResponseDto.Message;
-                agentRunResultDto.Products = agentResponseDto.Products;
-                return agentRunResultDto;
-            }
-
-            if (!string.IsNullOrEmpty(agentResponseDto.ToolName))
-            {
-                await _toolChatCoordinator.HandleToolExecuteAndSave
-                (
-                    agentResponseDto.ToolName,
-                    agentResponseDto.Data!.Value,
-                    inventoryId,
-                    chatSignture
-                );
-            }
-
-            return agentRunResultDto;
+            _notificationService = notificationService; 
         }
 
         public async Task<AgentRunResultDto> RunAsync(AgentRequestDto agentRequestDto)
@@ -108,5 +80,100 @@ namespace Application.Agents
             return agentRunResultDto;
         }
 
+        private async Task<AgentRunResultDto> HandleAgentResponse(AgentResponseDto agentResponseDto, Guid inventoryId, Guid chatSignture)
+        {
+            AgentRunResultDto agentRunResultDto = new AgentRunResultDto();
+
+            if (agentResponseDto.HasError)
+                return await GetResultWhenHasError(
+                    agentResponseDto,
+                    inventoryId,
+                    chatSignture
+                );
+
+            if (agentResponseDto.IsFinished)
+                return await GetResultWhenIsFinished(
+                     agentResponseDto,
+                     inventoryId,
+                     chatSignture
+                );
+
+            if (agentResponseDto.AskUser)
+                return await GetResultWhenAskUser(
+                    agentResponseDto,
+                    inventoryId,
+                    chatSignture
+                );
+
+            if (!string.IsNullOrEmpty(agentResponseDto.ToolName))
+            {
+                await _toolChatCoordinator.HandleToolExecuteAndSave
+                (
+                    agentResponseDto.ToolName,
+                    agentResponseDto.Data!.Value,
+                    inventoryId,
+                    chatSignture
+                );
+            }
+
+            return agentRunResultDto;
+        }
+
+        private async Task<AgentRunResultDto> GetResultWhenHasError(AgentResponseDto agentResponseDto,Guid inventoryId, Guid chatSignture)
+        {
+            AgentRunResultDto agentRunResultDto = new AgentRunResultDto();
+            agentRunResultDto.HasError = true;
+
+            await _notificationService.CreateNotification(inventoryId, new NotificationDto()
+            {
+                ChatId = chatSignture,
+                AgentType = _AgentType.ToString(),
+                InventoryId = inventoryId,
+                NotificationStatus = eNotificationStatus.Failed.ToString(),
+                Text = agentResponseDto.Message,
+            });
+
+            return agentRunResultDto;
+        }
+
+        private async Task<AgentRunResultDto> GetResultWhenIsFinished(AgentResponseDto agentResponseDto, Guid inventoryId, Guid chatSignture)
+        {
+            AgentRunResultDto agentRunResultDto = new AgentRunResultDto();
+            agentRunResultDto.IsFinished = true;
+            agentRunResultDto.Message = agentResponseDto.Message;
+            agentRunResultDto.Products = agentResponseDto.Products;
+
+            await _notificationService.CreateNotification(inventoryId, new NotificationDto()
+            {
+                ChatId = chatSignture,
+                AgentType = _AgentType.ToString(),
+                InventoryId = inventoryId,
+                NotificationStatus = eNotificationStatus.Completed.ToString(),
+                Data= JsonSerializer.Serialize(agentResponseDto.Products),
+                Text = agentResponseDto.Message,
+            });
+
+            return agentRunResultDto;
+        }
+
+        private async Task<AgentRunResultDto> GetResultWhenAskUser(AgentResponseDto agentResponseDto, Guid inventoryId, Guid chatSignture)
+        {
+            AgentRunResultDto agentRunResultDto = new AgentRunResultDto();
+            agentRunResultDto.AskUser = true;
+            agentRunResultDto.Message = agentResponseDto.Message;
+            agentRunResultDto.Products = agentResponseDto.Products;
+
+            await _notificationService.CreateNotification(inventoryId, new NotificationDto()
+            {
+                ChatId = chatSignture,
+                AgentType = _AgentType.ToString(),
+                InventoryId = inventoryId,
+                NotificationStatus = eNotificationStatus.WaitingForUser.ToString(),
+                Text = agentResponseDto.Message,
+                Data = JsonSerializer.Serialize(agentResponseDto.Products),
+            });
+
+            return agentRunResultDto;
+        }
     }
 }
