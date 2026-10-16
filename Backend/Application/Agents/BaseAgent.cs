@@ -39,6 +39,7 @@ namespace Application.Agents
             {
                 agentRunResultDto.IsFinished = true;
                 agentRunResultDto.Message = agentResponseDto.Message;
+                agentRunResultDto.Products = agentResponseDto.Products;
                 return agentRunResultDto;
             }
 
@@ -46,6 +47,7 @@ namespace Application.Agents
             {
                 agentRunResultDto.AskUser = true;
                 agentRunResultDto.Message = agentResponseDto.Message;
+                agentRunResultDto.Products = agentResponseDto.Products;
                 return agentRunResultDto;
             }
 

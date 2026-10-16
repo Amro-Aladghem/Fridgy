@@ -13,5 +13,6 @@ namespace Application.Dtos
         public JsonElement? Data { get; set; }
         public bool AskUser { get; set; }
         public bool HasError { get; set; }
+        public List<ProductDto>? Products { get; set;  }
     }
 }

@@ -11,5 +11,6 @@ namespace Application.Dtos
         public string Message { get; set; }
         public bool AskUser { get; set; } = false;
         public bool HasError { get; set; } = false;
+        public List<ProductDto>? Products { get; set; } 
     }
 }
