@@ -2,7 +2,7 @@ namespace Application.Dtos
 {
     public record ProductDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public Guid InventoryId { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }

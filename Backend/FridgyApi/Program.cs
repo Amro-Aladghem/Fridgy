@@ -18,6 +18,8 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ChatService>();
+builder.Services.AddScoped<ShoppingListService>();
+builder.Services.AddScoped<ShoppingListProductService>();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
