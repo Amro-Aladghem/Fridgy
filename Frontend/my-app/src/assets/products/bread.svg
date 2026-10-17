@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Bread">
+  <path d="M12 30c0-8 8-14 20-14s20 6 20 14v18a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4z" fill="#e0a55c"/>
+  <path d="M12 30c0-8 8-14 20-14s20 6 20 14z" fill="#f0c078"/>
+  <path d="M20 22c0-4 5-7 12-7s12 3 12 7" fill="none" stroke="#c9853f" stroke-width="2" stroke-linecap="round"/>
+  <path d="M22 22l3 5M32 18l2 6M42 22l-3 5" stroke="#c9853f" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+</svg>

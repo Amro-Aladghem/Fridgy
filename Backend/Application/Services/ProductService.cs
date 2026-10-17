@@ -1,5 +1,6 @@
 ﻿using Application.Dtos;
 using Domain.Enities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -108,6 +109,17 @@ namespace Application.Services
         {
             return await _context.Products
                 .Where(p => p.InventoryId == inventoryId && !p.IsDeleted)
+                .Select(p => ToDto(p))
+                .ToListAsync();
+        }
+
+        public async Task<List<ProductDto>> GetExpiredProducts(Guid inventoryId)
+        {
+            int expiredStatusId = (int)eProductStatus.Expired;
+
+            return await _context.Products
+                .Where(p => p.InventoryId == inventoryId && !p.IsDeleted
+                    && p.ProductStatusId==expiredStatusId)
                 .Select(p => ToDto(p))
                 .ToListAsync();
         }

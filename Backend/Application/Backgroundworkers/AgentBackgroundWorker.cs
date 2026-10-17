@@ -14,15 +14,12 @@ namespace Infrastructure.Backgroundworkers
     {
         private readonly Channel<AgentRequestDto> _channel;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly NotificationService _notificationService;
         public AgentBackgroundWorker(
             Channel<AgentRequestDto> channel,
-            IServiceScopeFactory scopeFactory,
-            NotificationService notificationService)
+            IServiceScopeFactory scopeFactory)
         {
             _channel = channel;
             _scopeFactory = scopeFactory;
-            _notificationService = notificationService;
         }
 
         protected override async Task ExecuteAsync(
@@ -39,7 +36,10 @@ namespace Infrastructure.Backgroundworkers
                     var executionService = scope.ServiceProvider
                         .GetRequiredService<AgentExecutionService>();
 
-                    await _notificationService.CreateNotification(job.InventoryId, new NotificationDto()
+                    var notificationService = scope.ServiceProvider
+                        .GetRequiredService<NotificationService>();
+
+                    await notificationService.CreateNotification(job.InventoryId, new NotificationDto()
                     {
                         ChatId = job.ChatSignture!.Value,
                         AgentType = job.AgentType,

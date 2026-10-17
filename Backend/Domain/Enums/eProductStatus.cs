@@ -6,5 +6,8 @@ namespace Domain.Enums
 {
     public enum eProductStatus
     {
+        Unknown=1,
+        Known=2,
+        Expired=3
     }
 }

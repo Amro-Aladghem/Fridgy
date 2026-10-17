@@ -2,6 +2,7 @@
 using Application.Services;
 using Application.Services.Coordinators;
 using Azure.Core;
+using Domain.Enums;
 using Infrastructure.ExternalServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,14 +21,19 @@ namespace Presentation
         private readonly ChatService _chatService;
         private readonly AgentDecisionService _agentDecisionService;
         private readonly NotificationService _notificationService;
+        private readonly ProductService _productService;
+        private readonly ShoppingListService _shoppingListService;
         private readonly Channel<AgentRequestDto> _channel;
 
         public InventoryController(ChatService chatService, AgentDecisionService agentDecisionService, 
-            NotificationService notificationService,Channel<AgentRequestDto> channel)
+            NotificationService notificationService, ProductService productService,
+            ShoppingListService shoppingListService, Channel<AgentRequestDto> channel)
         {
             _chatService = chatService;
             _agentDecisionService = agentDecisionService;
             _notificationService = notificationService;
+            _productService = productService;
+            _shoppingListService = shoppingListService;
             _channel = channel;
         }
 
@@ -45,13 +51,13 @@ namespace Presentation
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<string>> ChatWithAgent(AgentRequestDto agentRequestDto,
-            Guid inventoryId,Guid chatSignuture,bool askUser=false)
+            Guid inventoryId,Guid chatSignuture,[FromQuery]bool askUser=false)
         {
             string? agentType = null;
 
             if (!askUser && agentRequestDto.AgentType is not null)
             {
-                agentType = await _agentDecisionService.GetAgentTypeAfterDecision(agentRequestDto.Message);
+                agentType = await _agentDecisionService.GetAgentTypeAsync(agentRequestDto.Message);
                 if (agentType is null)
                     return StatusCode(StatusCodes.Status500InternalServerError, "System Error , please try again");
             }
@@ -69,6 +75,30 @@ namespace Presentation
 
             await _channel.Writer.WriteAsync(agentRequestDto);
             return Accepted(agentType);
+        }
+
+        [HttpPost("{inventoryId}/chats/{chatSignuture}/monitor")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<string>> CallingMonitorAgent(AgentRequestDto agentRequestDto,
+            Guid inventoryId, Guid chatSignuture)
+        {
+
+            string monitorAgent = eAgentType.MonitoringAgent.ToString();
+
+            await _notificationService.CreateNotification(inventoryId, new NotificationDto()
+            {
+                InventoryId = inventoryId,
+                ChatId = chatSignuture,
+                AgentType = monitorAgent
+            });
+
+            agentRequestDto.AgentType = monitorAgent;
+            agentRequestDto.InventoryId = inventoryId;
+            agentRequestDto.ChatSignture = chatSignuture;
+
+            await _channel.Writer.WriteAsync(agentRequestDto);
+            return Accepted(monitorAgent);
         }
 
 
@@ -90,6 +120,64 @@ namespace Presentation
         {
             var result = await _chatService.GetChatsForChatId(inventoryId,chatSignuture);
             return Ok(result);
+        }
+
+        [HttpGet("{inventoryId}/shoppinglists")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<ShoppingListDto>>> GetShoppingListsHistory(Guid inventoryId)
+        {
+            var result = await _shoppingListService.GetShoppingListsForInventory(inventoryId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("{inventoryId}/products/expired")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<ProductDto>>> GetExpiredProducts(Guid inventoryId)
+        {
+            var result = await _productService.GetExpiredProducts(inventoryId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("{inventoryId}/products")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<ProductDto>>> GetProducts(Guid inventoryId)
+        {
+            var result = await _productService.GetProducts(inventoryId);
+
+            return Ok(result);
+        }
+
+        [HttpPut("{inventoryId}/products/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ProductDto>> UpdateProduct(Guid inventoryId, Guid id, ProductDto productDto)
+        {
+            var result = await _productService.UpdateProductById(inventoryId, id, productDto);
+
+            if (result is null)
+                return NotFound();
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{inventoryId}/products/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> DeleteProduct(Guid inventoryId, Guid id)
+        {
+            var result = await _productService.DeleteProduct(inventoryId, id);
+
+            if (!result)
+                return NotFound();
+
+            return Ok();
         }
     }
 }

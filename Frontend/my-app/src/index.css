@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #27864b;
+  --color-primary-dark: #185c36;
+  --color-mint: #eaf5ec;
+  --color-canvas: #f8faf7;
+  --color-surface: #ffffff;
+  --color-ink: #202820;
+  --color-muted: #737c73;
+  --color-line: #e3e8e2;
+  --color-warn: #b45309;
+  --color-warn-soft: #fef3c7;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fee2e2;
+
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", "Noto Kufi Arabic", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@keyframes fridgy-jump {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-12px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes fridgy-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fridgy-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-jump {
+  animation: fridgy-jump 0.7s ease;
+}
+
+.group:hover .mascot-jump,
+.group:focus-within .mascot-jump {
+  animation: fridgy-jump 0.7s ease;
+}
+
+.animate-fade-in {
+  animation: fridgy-fade-in 0.28s ease-out both;
+}
+
+.animate-pop-in {
+  animation: fridgy-pop-in 0.2s ease-out both;
+}
+
+@keyframes fridgy-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: fridgy-slide-up 0.26s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fridge-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+
+.fridge-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fridge-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--color-line);
+  border-radius: 9999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
