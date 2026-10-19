@@ -10,6 +10,7 @@ import { cn } from '@/libs/cn';
 interface ChatComposerProps {
   onSubmit: (message: string, file: File | null) => void | Promise<void>;
   loading?: boolean;
+  attachDisabled?: boolean;
   placeholder?: string;
   focusToken?: number;
 }
@@ -17,6 +18,7 @@ interface ChatComposerProps {
 export function ChatComposer({
   onSubmit,
   loading = false,
+  attachDisabled = false,
   placeholder,
   focusToken = 0,
 }: ChatComposerProps) {
@@ -108,7 +110,7 @@ export function ChatComposer({
           type="button"
           label={t('attachImage')}
           onClick={() => fileRef.current?.click()}
-          disabled={loading}
+          disabled={loading || attachDisabled}
         >
           <Paperclip size={18} />
         </IconButton>

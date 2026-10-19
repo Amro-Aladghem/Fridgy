@@ -12,9 +12,11 @@ export type NotificationStatus =
   | 'Failed';
 
 export const ChatRole = {
-  Agent: 1,
-  User: 2,
-  Tool: 3,
+  InventoryAgent: 1,
+  MonitorAgent: 2,
+  ShoppingListAgent: 3,
+  User: 4,
+  Tool: 5,
 } as const;
 
 export type ChatRole = (typeof ChatRole)[keyof typeof ChatRole];

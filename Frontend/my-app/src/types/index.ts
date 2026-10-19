@@ -7,7 +7,6 @@ export type { NotificationDto } from '@/types/notification';
 export type { ProductDto } from '@/types/product';
 export type { ShoppingListDto } from '@/types/shoppingList';
 export type {
-  AppNotification,
   ExpiryState,
   FridgeProduct,
   UiShoppingList,

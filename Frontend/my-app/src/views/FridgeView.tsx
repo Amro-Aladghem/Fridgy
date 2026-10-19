@@ -6,17 +6,21 @@ import { FridgeIllustration } from '@/components/fridge/FridgeIllustration';
 import { ProductCard } from '@/components/fridge/ProductCard';
 import { ProductDetailsDialog } from '@/components/fridge/ProductDetailsDialog';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { ErrorState } from '@/components/ui/ErrorState';
 import type { ProductDto } from '@/types/product';
 
 export function FridgeView() {
   const { t } = useLanguage();
-  const { products, updateProduct } = useProducts();
+  const { products, loading, error, reload, updateProduct } = useProducts();
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selected = products.find((product) => product.id === selectedId) ?? null;
 
-  const handleSave = (id: string, changes: Partial<ProductDto>) => updateProduct(id, changes);
+  const handleSave = (id: string, changes: Partial<ProductDto>) => {
+    void updateProduct(id, changes);
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6">
@@ -27,7 +31,11 @@ export function FridgeView() {
         </p>
       </div>
 
-      {products.length === 0 ? (
+      {loading ? (
+        <LoadingState />
+      ) : error ? (
+        <ErrorState message={error} onRetry={reload} />
+      ) : products.length === 0 ? (
         <EmptyState
           icon={<Refrigerator size={20} />}
           title={t('emptyFridge')}

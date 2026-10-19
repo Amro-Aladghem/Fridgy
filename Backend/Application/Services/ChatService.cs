@@ -28,7 +28,8 @@ namespace Application.Services
                 ChatRoleId = dto.ChatRoleId,
                 Message = dto.Message,
                 Data=dto.Data,
-                ShowMessage=dto.ShowMessage
+                ShowMessage=dto.ShowMessage,
+                IsFinished=dto.IsFinalResponse
             };
 
             _context.Chats.Add(chat);
@@ -63,7 +64,9 @@ namespace Application.Services
                 ImageType = c.ImageType,
                 ChatRoleId = c.ChatRoleId,
                 Message = c.Message,
-                Data=c.Data
+                Data=c.Data,
+                ShowMessage = c.ShowMessage,
+                IsFinalResponse = c.IsFinished
             };
         }
     }

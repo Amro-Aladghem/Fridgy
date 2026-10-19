@@ -39,3 +39,11 @@ export const statusPresentation: Record<NotificationStatus, StatusPresentation> 
   Completed: { Icon: CheckCircle2, tint: 'text-primary' },
   Failed: { Icon: AlertTriangle, tint: 'text-danger' },
 };
+
+export const statusLabelKey: Record<NotificationStatus, TranslationKey> = {
+  Queued: 'chatStatusQueued',
+  Running: 'chatStatusRunning',
+  WaitingForUser: 'chatStatusWaitingUser',
+  Completed: 'chatStatusFinished',
+  Failed: 'chatStatusFailed',
+};

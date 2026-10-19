@@ -20,6 +20,10 @@ const en = {
   unread: 'Unread',
   close: 'Close',
 
+  loading: 'Loading…',
+  errorTitle: 'Something went wrong',
+  retry: 'Retry',
+
   homeSubtitle: 'Fridgy Agents Work For You',
   startConversation: 'Start a new conversation',
   composerPlaceholder: 'Ask about your fridge, food, shopping list, or recipes…',
@@ -28,6 +32,12 @@ const en = {
   voiceUnavailable: 'Voice input is not available yet.',
   attachImage: 'Attach image',
   messagesPreview: 'Your messages',
+  chatStatusQueued: 'Queued',
+  chatStatusRunning: 'Working…',
+  chatStatusWaitingUser: 'Waiting for you',
+  chatStatusFinished: 'Finished',
+  chatStatusFailed: 'Failed',
+  chatStartFailed: 'Could not start a new chat.',
 
   fridgeTitle: 'Your Fridge',
   fridgeSubtitle: 'Tap the fridge to open the door.',
@@ -42,6 +52,7 @@ const en = {
   name: 'Name',
   description: 'Description',
   quantity: 'Quantity',
+  amount: 'Amount',
   price: 'Price',
   producedDate: 'Production date',
   expiryDate: 'Expiration date',
@@ -84,6 +95,7 @@ const en = {
   agentMonitoring: 'Monitoring Agent',
   agentShopping: 'Shopping Agent',
   agentCooking: 'Cooking Agent',
+  agentGeneric: 'Agent',
 } as const;
 
 export type TranslationKey = keyof typeof en;

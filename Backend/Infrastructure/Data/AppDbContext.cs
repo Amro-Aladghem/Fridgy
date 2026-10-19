@@ -20,9 +20,11 @@ namespace Infrastructure.Data
             }
 
             modelBuilder.Entity<ChatRole>().HasData(
-                new ChatRole { Id = 1, Name = "Agent" },
-                new ChatRole { Id = 2, Name = "User" },
-                new ChatRole { Id = 3, Name = "Tool" }
+                new ChatRole { Id = 1, Name = "InventoryAgent" },
+                new ChatRole { Id = 2, Name = "MonitorAgent" },
+                new ChatRole { Id = 3, Name = "ShoppingListAgent" },
+                new ChatRole { Id = 4, Name = "User" },
+                new ChatRole { Id = 5, Name = "Tool" }
             );
 
             modelBuilder.Entity<Notification>().Property(p => p.NotficationStatus)

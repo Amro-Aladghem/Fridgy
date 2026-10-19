@@ -32,7 +32,7 @@ namespace Infrastructure.AI
             if (messagesContext is not null)
                 messagesContextAsString = "The Chat Context:" + JsonSerializer.Serialize(messagesContext);
 
-            string prompt = $"The INVENTORY_ID={inventoryId},{messagesContext}";
+            string prompt = $"The INVENTORY_ID={inventoryId},{messagesContextAsString}";
 
             return prompt;
         }

@@ -2,7 +2,6 @@ import { AppHeader } from '@/components/layout/AppHeader';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { ChatProvider, useChat } from '@/contexts/ChatContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
-import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { ProductsProvider } from '@/contexts/ProductsContext';
 import { RouterProvider, useRouter } from '@/libs/router';
 import { cn } from '@/libs/cn';
@@ -46,13 +45,11 @@ function App() {
   return (
     <LanguageProvider>
       <ProductsProvider>
-        <NotificationsProvider>
-          <ChatProvider>
-            <RouterProvider>
-              <AppShell />
-            </RouterProvider>
-          </ChatProvider>
-        </NotificationsProvider>
+        <ChatProvider>
+          <RouterProvider>
+            <AppShell />
+          </RouterProvider>
+        </ChatProvider>
       </ProductsProvider>
     </LanguageProvider>
   );

@@ -12,5 +12,7 @@ namespace Application.Dtos
         public string Message { get; set; }
         public string? Data { get; set; }
         public bool ShowMessage { get; set; } = false;
+
+        public bool IsFinalResponse { get; set; } = false;
     }
 }

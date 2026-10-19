@@ -39,6 +39,7 @@ namespace Application.Services
         {
             return await _context.Notifications
                 .Where(n => n.InventoryId == inventoryId && n.ChatSignture == chatId)
+                .OrderBy(n=>n.UpdatedAt)
                 .Select(n => ToDto(n))
                 .ToListAsync();
         }

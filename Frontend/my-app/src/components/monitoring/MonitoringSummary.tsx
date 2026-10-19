@@ -3,11 +3,13 @@ import { AlertTriangle, CalendarClock, Package, PackageCheck } from 'lucide-reac
 import type { LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/contexts/LanguageContext';
-import { useProducts } from '@/contexts/ProductsContext';
 import { MonitoringProductsDialog } from '@/components/monitoring/MonitoringProductsDialog';
-import { matchesMonitoringCategory } from '@/libs/productStatus';
-import type { MonitoringCategory } from '@/libs/productStatus';
+import { getExpiryState, isFinished } from '@/libs/productStatus';
 import { cn } from '@/libs/cn';
+import type { ProductDto } from '@/types/product';
+import type { FridgeProduct } from '@/types/ui';
+
+type MonitoringCategory = 'all' | 'expired' | 'approaching' | 'finished';
 
 interface CategoryConfig {
   key: MonitoringCategory;
@@ -23,23 +25,35 @@ const categories: CategoryConfig[] = [
   { key: 'finished', labelKey: 'monFinished', Icon: PackageCheck, tint: 'bg-ink/5 text-muted' },
 ];
 
-export function MonitoringSummary() {
+interface MonitoringSummaryProps {
+  products: FridgeProduct[];
+  expiredProducts: ProductDto[];
+}
+
+export function MonitoringSummary({ products, expiredProducts }: MonitoringSummaryProps) {
   const { t } = useLanguage();
-  const { products } = useProducts();
   const [activeCategory, setActiveCategory] = useState<MonitoringCategory | null>(null);
 
+  const productsFor = (category: MonitoringCategory): FridgeProduct[] => {
+    switch (category) {
+      case 'all':
+        return products;
+      case 'expired':
+        return expiredProducts;
+      case 'approaching':
+        return products.filter((product) => getExpiryState(product.expiryDate) === 'approaching');
+      case 'finished':
+        return products.filter((product) => isFinished(product));
+    }
+  };
+
   const active = categories.find((category) => category.key === activeCategory) ?? null;
-  const activeProducts = active
-    ? products.filter((product) => matchesMonitoringCategory(product, active.key))
-    : [];
 
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3">
         {categories.map(({ key, labelKey, Icon, tint }) => {
-          const count = products.filter((product) =>
-            matchesMonitoringCategory(product, key),
-          ).length;
+          const count = productsFor(key).length;
           return (
             <button
               key={key}
@@ -64,7 +78,7 @@ export function MonitoringSummary() {
         open={active !== null}
         onClose={() => setActiveCategory(null)}
         title={active ? t(active.labelKey) : ''}
-        products={activeProducts}
+        products={active ? productsFor(active.key) : []}
       />
     </div>
   );

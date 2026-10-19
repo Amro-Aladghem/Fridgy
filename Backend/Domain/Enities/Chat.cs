@@ -18,6 +18,8 @@ namespace Domain.Enities
         public string ?Data{ get; set; }
         public bool ShowMessage { get; set; } = false;
 
+        public bool IsFinished { get; set; } = false;
+
         public ChatRole ChatRole { get; set; } = null!;
         public Inventory Inventory { get; set; } = null!;
     }

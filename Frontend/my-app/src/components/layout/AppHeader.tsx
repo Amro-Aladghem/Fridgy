@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Bell, Menu, X } from 'lucide-react';
 import logo from '@/assets/Logo.png';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNotifications } from '@/contexts/NotificationsContext';
+import { useChat } from '@/contexts/ChatContext';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { IconButton } from '@/components/ui/IconButton';
 import { Badge } from '@/components/ui/Badge';
@@ -12,11 +12,12 @@ import { NavLink } from '@/libs/router';
 
 export function AppHeader() {
   const { t } = useLanguage();
-  const { unreadCount } = useNotifications();
+  const { notifications } = useChat();
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const menuRef = useOutsideClick<HTMLDivElement>(() => setMenuOpen(false));
+  const notificationCount = notifications.length;
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur">
@@ -52,9 +53,9 @@ export function AppHeader() {
             <IconButton label={t('notifications')} onClick={() => setNotificationsOpen(true)}>
               <Bell size={20} />
             </IconButton>
-            {unreadCount > 0 && (
+            {notificationCount > 0 && (
               <Badge className="pointer-events-none absolute -top-0.5 end-0.5">
-                {unreadCount > 99 ? '99+' : unreadCount}
+                {notificationCount > 99 ? '99+' : notificationCount}
               </Badge>
             )}
           </div>

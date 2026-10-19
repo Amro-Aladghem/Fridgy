@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Plus, RefreshCw } from 'lucide-react';
 import inventoryAgent from '@/assets/InventoryAgent.png';
 import monitoringAgent from '@/assets/MonitoringAgent.png';
@@ -8,13 +8,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
 import { AgentMascot } from '@/components/agents/AgentMascot';
 import { ChatComposer } from '@/components/chat/ChatComposer';
+import { ChatImage } from '@/components/chat/ChatImage';
+import { AgentExecutionGroup } from '@/components/chat/AgentExecutionGroup';
+import { Button } from '@/components/ui/Button';
+import { LoadingState } from '@/components/ui/LoadingState';
 import { cn } from '@/libs/cn';
-
-interface LocalMessage {
-  id: number;
-  text: string;
-  imageUrl?: string;
-}
 
 const chatAgents = [
   { src: inventoryAgent, name: 'Inventory' },
@@ -24,14 +22,25 @@ const chatAgents = [
 
 export function HomeView() {
   const { t } = useLanguage();
-  const { chatOpen, openChat, closeChat } = useChat();
-  const [messages, setMessages] = useState<LocalMessage[]>([]);
+  const {
+    chatOpen,
+    openChat,
+    closeChat,
+    chatId,
+    timeline,
+    loading,
+    creating,
+    sending,
+    hasImage,
+    startNewChat,
+    sendMessage,
+  } = useChat();
   const [focusToken, setFocusToken] = useState(0);
+  const endRef = useRef<HTMLDivElement | null>(null);
 
-  const handleSubmit = async (text: string, file: File | null) => {
-    const imageUrl = file ? URL.createObjectURL(file) : undefined;
-    setMessages((prev) => [...prev, { id: Date.now(), text, imageUrl }]);
-  };
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'end' });
+  }, [timeline]);
 
   const handleOpenChat = () => {
     openChat();
@@ -112,34 +121,50 @@ export function HomeView() {
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-2">
-          {messages.length === 0 ? (
+          {creating || loading ? (
+            <LoadingState />
+          ) : !chatId ? (
+            <div className="mt-6 flex flex-col items-center gap-3 text-center">
+              <p className="text-sm text-muted">{t('chatStartFailed')}</p>
+              <Button variant="secondary" size="sm" onClick={() => void startNewChat()}>
+                {t('retry')}
+              </Button>
+            </div>
+          ) : timeline.length === 0 ? (
             <p className="mt-6 text-center text-sm text-muted">{t('composerPlaceholder')}</p>
           ) : (
-            messages.map((message) => (
-              <div key={message.id} className="flex justify-end">
-                <div className="max-w-[80%] overflow-hidden rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm text-white">
-                  {message.imageUrl && (
-                    <img
-                      src={message.imageUrl}
-                      alt=""
+            timeline.map((item) =>
+              item.kind === 'user' ? (
+                <div key={item.id} className="flex justify-end">
+                  <div className="max-w-[80%] overflow-hidden rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm text-white">
+                    <ChatImage
+                      src={item.imageUrl}
                       className="mb-2 max-h-56 w-full rounded-lg object-cover"
                     />
-                  )}
-                  {message.text && (
-                    <p dir="auto" className="whitespace-pre-wrap break-words">
-                      {message.text}
-                    </p>
-                  )}
+                    {item.message && (
+                      <p dir="auto" className="whitespace-pre-wrap break-words">
+                        {item.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              ) : (
+                <AgentExecutionGroup key={item.id} group={item} />
+              ),
+            )
           )}
+          <div ref={endRef} />
         </div>
       </div>
 
       <div className="border-t border-line bg-surface px-4 py-3">
         <div className="mx-auto w-full max-w-2xl">
-          <ChatComposer onSubmit={handleSubmit} focusToken={focusToken} />
+          <ChatComposer
+            onSubmit={sendMessage}
+            focusToken={focusToken}
+            loading={creating || sending}
+            attachDisabled={hasImage}
+          />
         </div>
       </div>
     </div>

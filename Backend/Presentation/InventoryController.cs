@@ -23,17 +23,22 @@ namespace Presentation
         private readonly NotificationService _notificationService;
         private readonly ProductService _productService;
         private readonly ShoppingListService _shoppingListService;
+        private readonly ShoppingListProductService _shoppingListProductService;
+        private readonly BlobStorageUploadService _blobStorageUploadService;
         private readonly Channel<AgentRequestDto> _channel;
 
         public InventoryController(ChatService chatService, AgentDecisionService agentDecisionService, 
             NotificationService notificationService, ProductService productService,
-            ShoppingListService shoppingListService, Channel<AgentRequestDto> channel)
+            ShoppingListService shoppingListService, ShoppingListProductService shoppingListProductService,
+            BlobStorageUploadService blobStorageUploadService, Channel<AgentRequestDto> channel)
         {
             _chatService = chatService;
             _agentDecisionService = agentDecisionService;
             _notificationService = notificationService;
             _productService = productService;
             _shoppingListService = shoppingListService;
+            _shoppingListProductService = shoppingListProductService;
+            _blobStorageUploadService = blobStorageUploadService;
             _channel = channel;
         }
 
@@ -61,6 +66,17 @@ namespace Presentation
                 if (agentType is null)
                     return StatusCode(StatusCodes.Status500InternalServerError, "System Error , please try again");
             }
+
+            await _chatService.CreateChat(inventoryId, new ChatDto()
+            {
+                ChatSignature = chatSignuture,
+                InventoryId = inventoryId,
+                ChatRoleId = (int)eChatRole.User,
+                Message = agentRequestDto.Message,
+                ImageUrl = agentRequestDto.ImageUri,
+                ShowMessage = true,
+                CreationTime = DateTime.UtcNow
+            });
 
             await _notificationService.CreateNotification(inventoryId, new NotificationDto()
             {
@@ -105,9 +121,9 @@ namespace Presentation
         [HttpGet("{inventoryId}/chats/{chatSignuture}/notifications")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<NotificationDto>>> GetNotificationsForChat(Guid inventoryId,Guid chatSignture)
+        public async Task<ActionResult<List<NotificationDto>>> GetNotificationsForChat(Guid inventoryId,Guid chatSignuture)
         {
-            var result = await _notificationService.GetNotificationsForChatId(inventoryId, chatSignture);
+            var result = await _notificationService.GetNotificationsForChatId(inventoryId, chatSignuture);
 
             return Ok(result);
         }
@@ -122,12 +138,37 @@ namespace Presentation
             return Ok(result);
         }
 
+        [HttpPost("{inventoryId}/upload")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<string>> UploadInventoryImage(Guid inventoryId, [FromForm] IFormFile file)
+        {
+            if (file is null || file.Length == 0)
+                return BadRequest("No file was provided.");
+
+            await using var stream = file.OpenReadStream();
+            var url = await _blobStorageUploadService.UploadAsync(stream, file.FileName, inventoryId);
+
+            return Ok(url);
+        }
+
         [HttpGet("{inventoryId}/shoppinglists")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<ShoppingListDto>>> GetShoppingListsHistory(Guid inventoryId)
         {
             var result = await _shoppingListService.GetShoppingListsForInventory(inventoryId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("{inventoryId}/shoppinglists/{listId}/products")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<ProductDto>>> GetProductsForShoppingList(Guid inventoryId, Guid listId)
+        {
+            var result = await _shoppingListProductService.GetProductsForShoppingList(listId, inventoryId);
 
             return Ok(result);
         }

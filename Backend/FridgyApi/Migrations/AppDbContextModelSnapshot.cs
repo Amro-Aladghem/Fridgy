@@ -17,7 +17,7 @@ namespace FridgyApi.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -37,6 +37,9 @@ namespace FridgyApi.Migrations
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Data")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageType")
                         .HasColumnType("nvarchar(max)");
 
@@ -46,12 +49,18 @@ namespace FridgyApi.Migrations
                     b.Property<Guid>("InventoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsFinished")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("ShowMessage")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -82,16 +91,26 @@ namespace FridgyApi.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Agent"
+                            Name = "InventoryAgent"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "User"
+                            Name = "MonitorAgent"
                         },
                         new
                         {
                             Id = 3,
+                            Name = "ShoppingListAgent"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 5,
                             Name = "Tool"
                         });
                 });

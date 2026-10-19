@@ -31,9 +31,14 @@ export function MonitoringProductsDialog({
               key={product.id}
               className="flex items-center gap-3 rounded-xl border border-line bg-surface p-2.5"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-mint/60">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-mint/60">
                 {product.imageUrl ? (
-                  <img src={product.imageUrl} alt="" className="h-7 w-7" draggable={false} />
+                  <img
+                    src={product.imageUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    draggable={false}
+                  />
                 ) : (
                   <ShoppingBasket size={20} className="text-primary-dark" />
                 )}

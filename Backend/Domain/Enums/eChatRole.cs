@@ -6,8 +6,10 @@ namespace Domain.Enums
 {
     public enum eChatRole
     {
-        Agent=1,
-        User=2,
-        Tool=3
+        InventoryAgent = 1,
+        MonitorAgent = 2,
+        ShoppingListAgent = 3,
+        User = 4,
+        Tool = 5
     }
 }

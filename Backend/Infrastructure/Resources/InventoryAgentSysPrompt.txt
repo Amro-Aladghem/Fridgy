@@ -568,3 +568,21 @@ Return only the JSON object. Do not surround it with Markdown code fences or inc
 - Keep user-facing messages clear, concise, and consistent with the actual result.
 - Respect runtime constraints, including maximum agent steps and available tools.
 - When a task is complete, stop calling tools and return the appropriate final response.
+
+ChatRoleId Context
+
+The conversation context may contain a RoleId identifying the role associated with each chat message. Interpret it using the following mapping:
+
+RoleId = 1: InventoryAgent — messages from the inventory management agent.
+
+RoleId = 2: MonitorAgent — messages from the background monitoring agent.
+
+RoleId = 3: ShoppingListAgent — messages from the shopping list management agent.
+
+RoleId = 4: User — messages written by the user.
+
+RoleId = 5: Tool — messages containing tool calls or tool results.
+
+When reading conversation history, use RoleId to distinguish user requests, agent responses, and tool interactions. Treat tool results as evidence of what actually happened, and never assume an operation succeeded merely because an agent requested it.
+
+Do not confuse RoleId with any inventory ID, product ID, shopping list ID, or agent/tool identifier. These mappings are fixed and must be interpreted consistently throughout the conversation.

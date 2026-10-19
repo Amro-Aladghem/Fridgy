@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Agents;
+using Application.Dtos;
 using Domain.Enums;
 using Infrastructure.AI;
 using System;
@@ -10,12 +11,31 @@ namespace Application.Services.Coordinators
 {
     public class AgentChatCoordinator
     {
+        private static readonly JsonSerializerOptions DataJsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
         private readonly ChatService _chatService;
 
         public AgentChatCoordinator(ChatService chatService)
         {
             _chatService = chatService;
         }
+
+        private int GetChatRoleIdByIAgentChat(IAgentChat agentChat)
+        {
+            int roleId = agentChat switch
+            {
+                InventoryAgentChat => (int)eAgentType.InventoryAgent,
+                MonitoringAgent => (int)eAgentType.MonitoringAgent,
+                ShoppingListAgent => (int)eAgentType.ShoppingAgent,
+                _=> throw new Exception("agent chat parameter is not IAgentChat")
+            };
+
+            return roleId;
+        }
+
 
         public async Task<AgentResponseDto?> GenerateAgentResponse(Guid chatSignture,Guid inventoryId,IAgentChat agentChat)
         {
@@ -38,12 +58,13 @@ namespace Application.Services.Coordinators
                 ChatDto chatDto = await _chatService.CreateChat(inventoryId, new ChatDto()
                 {
                     Message = response,
-                    ChatRoleId = (int)eChatRole.Agent,
+                    ChatRoleId = GetChatRoleIdByIAgentChat(agentChat),
                     ChatSignature = chatSignture,
                     InventoryId = inventoryId,
                     CreationTime = DateTime.UtcNow,
                     ShowMessage = agentResponseDto.IsFinished || agentResponseDto.AskUser,
-                    Data=agentResponseDto.Products?.ToString()
+                    Data = agentResponseDto.Products is null ? null : JsonSerializer.Serialize(agentResponseDto.Products, DataJsonOptions),
+                    IsFinalResponse = agentResponseDto.IsFinished,
                 });
 
                 return agentResponseDto;

@@ -3,32 +3,30 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { formatRelative } from '@/libs/format';
 import {
   agentPresentation,
+  statusLabelKey,
   statusPresentation,
 } from '@/components/notifications/notificationPresentation';
-import type { AppNotification } from '@/types/ui';
+import type { NotificationDto } from '@/types/notification';
+import type { NotificationStatus } from '@/types/enums';
 
 interface NotificationItemProps {
-  notification: AppNotification;
-  onSelect: (notification: AppNotification) => void;
+  notification: NotificationDto;
+  isLast: boolean;
 }
 
-export function NotificationItem({ notification, onSelect }: NotificationItemProps) {
+export function NotificationItem({ notification, isLast }: NotificationItemProps) {
   const { t } = useLanguage();
   const agent = agentPresentation[notification.agentType];
-  const status = statusPresentation[notification.notificationStatus];
+  const presentedStatus: NotificationStatus =
+    notification.notificationStatus === 'Running' && !isLast
+      ? 'Completed'
+      : notification.notificationStatus;
+  const status = statusPresentation[presentedStatus];
   const AgentIcon = agent.Icon;
   const StatusIcon = status.Icon;
 
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(notification)}
-      className={cn(
-        'flex w-full gap-3 rounded-xl border p-3 text-start transition-colors hover:bg-mint/40',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
-        notification.isRead ? 'border-line bg-surface' : 'border-primary/20 bg-mint/30',
-      )}
-    >
+    <div className="flex w-full gap-3 rounded-xl border border-line bg-surface p-3">
       <span
         className={cn(
           'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
@@ -38,16 +36,9 @@ export function NotificationItem({ notification, onSelect }: NotificationItemPro
         <AgentIcon size={18} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2">
-          <span className="truncate text-sm font-semibold text-ink">{notification.title}</span>
-          {!notification.isRead && (
-            <span
-              className="h-2 w-2 shrink-0 rounded-full bg-primary"
-              aria-label={t('unread')}
-            />
-          )}
-        </span>
-        <span className="mt-0.5 block text-sm text-muted">{notification.text}</span>
+        {notification.text && (
+          <span className="block text-sm text-ink">{notification.text}</span>
+        )}
         <span className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
           <StatusIcon
             size={13}
@@ -56,9 +47,11 @@ export function NotificationItem({ notification, onSelect }: NotificationItemPro
           />
           <span>{t(agent.labelKey)}</span>
           <span aria-hidden="true">·</span>
+          <span>{t(statusLabelKey[presentedStatus])}</span>
+          <span aria-hidden="true">·</span>
           <span>{formatRelative(notification.updatedAt)}</span>
         </span>
       </span>
-    </button>
+    </div>
   );
 }

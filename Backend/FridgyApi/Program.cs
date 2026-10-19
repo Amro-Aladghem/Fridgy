@@ -67,6 +67,19 @@ builder.Services.AddControllers()
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend",
+           policy =>
+           {
+               policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
+                     .AllowAnyMethod()
+                     .AllowAnyHeader()
+                     .AllowCredentials();
+           });
+});
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -76,7 +89,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<GlobalExeptionMiddleware>();
 
-app.UseHttpsRedirection();
+app.UseCors("Frontend");
 
 app.UseAuthorization();
 

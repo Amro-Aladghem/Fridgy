@@ -65,7 +65,7 @@ export const inventoryService = {
       const response = await api.get<NotificationDto[]>(
         `${baseUri}/${inventoryId}/chats/${chatSignature}/notifications`,
       );
-      return { isSuccess: true, data: response.data };
+      return { isSuccess: true, data: Array.isArray(response.data) ? response.data : [] };
     } catch (error) {
       const { message, statusCode } = error as { message: string; statusCode: number };
       return { isSuccess: false, error: message, statusCode };
@@ -77,9 +77,24 @@ export const inventoryService = {
     chatSignature: string,
   ): Promise<ApiResponse<ChatDto[]>> {
     try {
-      const response = await api.get<ChatDto[]>(
+      const response = await api.get<ChatDto[] | null>(
         `${baseUri}/${inventoryId}/chats/${chatSignature}`,
       );
+      return { isSuccess: true, data: Array.isArray(response.data) ? response.data : [] };
+    } catch (error) {
+      const { message, statusCode } = error as { message: string; statusCode: number };
+      return { isSuccess: false, error: message, statusCode };
+    }
+  },
+
+  async uploadInventoryImage(
+    inventoryId: string,
+    file: File,
+  ): Promise<ApiResponse<string>> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post<string>(`${baseUri}/${inventoryId}/upload`, formData);
       return { isSuccess: true, data: response.data };
     } catch (error) {
       const { message, statusCode } = error as { message: string; statusCode: number };
@@ -94,7 +109,22 @@ export const inventoryService = {
       const response = await api.get<ShoppingListDto[]>(
         `${baseUri}/${inventoryId}/shoppinglists`,
       );
-      return { isSuccess: true, data: response.data };
+      return { isSuccess: true, data: Array.isArray(response.data) ? response.data : [] };
+    } catch (error) {
+      const { message, statusCode } = error as { message: string; statusCode: number };
+      return { isSuccess: false, error: message, statusCode };
+    }
+  },
+
+  async getProductsForShoppingList(
+    inventoryId: string,
+    listId: string,
+  ): Promise<ApiResponse<ProductDto[]>> {
+    try {
+      const response = await api.get<ProductDto[]>(
+        `${baseUri}/${inventoryId}/shoppinglists/${listId}/products`,
+      );
+      return { isSuccess: true, data: Array.isArray(response.data) ? response.data : [] };
     } catch (error) {
       const { message, statusCode } = error as { message: string; statusCode: number };
       return { isSuccess: false, error: message, statusCode };
@@ -106,7 +136,7 @@ export const inventoryService = {
       const response = await api.get<ProductDto[]>(
         `${baseUri}/${inventoryId}/products/expired`,
       );
-      return { isSuccess: true, data: response.data };
+      return { isSuccess: true, data: Array.isArray(response.data) ? response.data : [] };
     } catch (error) {
       const { message, statusCode } = error as { message: string; statusCode: number };
       return { isSuccess: false, error: message, statusCode };
@@ -116,7 +146,7 @@ export const inventoryService = {
   async getProducts(inventoryId: string): Promise<ApiResponse<ProductDto[]>> {
     try {
       const response = await api.get<ProductDto[]>(`${baseUri}/${inventoryId}/products`);
-      return { isSuccess: true, data: response.data };
+      return { isSuccess: true, data: Array.isArray(response.data) ? response.data : [] };
     } catch (error) {
       const { message, statusCode } = error as { message: string; statusCode: number };
       return { isSuccess: false, error: message, statusCode };

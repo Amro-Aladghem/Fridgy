@@ -43,19 +43,21 @@ export function ShoppingListCard({ list, onOpen }: ShoppingListCardProps) {
         />
       </div>
 
-      <div>
-        <div className="mb-1.5 flex items-center justify-between text-xs text-muted">
-          <span>
-            {total} {t('items')}
-          </span>
-          <span>
-            {purchased}/{total} {t('purchasedCount')}
-          </span>
+      {total > 0 && (
+        <div>
+          <div className="mb-1.5 flex items-center justify-between text-xs text-muted">
+            <span>
+              {total} {t('items')}
+            </span>
+            <span>
+              {purchased}/{total} {t('purchasedCount')}
+            </span>
+          </div>
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-mint">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          </div>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-mint">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-        </div>
-      </div>
+      )}
     </button>
   );
 }

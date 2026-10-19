@@ -1,22 +1,69 @@
-import { CheckCircle2, Circle, ShoppingBasket } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ShoppingBasket } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Dialog } from '@/components/ui/Dialog';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { ErrorState } from '@/components/ui/ErrorState';
+import inventoryService from '@/services/inventoryService';
+import { INVENTORY_ID } from '@/libs/config';
 import { formatDate } from '@/libs/format';
-import { cn } from '@/libs/cn';
-import type { UiShoppingList } from '@/types/ui';
+import type { ProductDto } from '@/types/product';
+import type { UiShoppingList, UiShoppingListItem } from '@/types/ui';
 
 interface ShoppingListDetailProps {
   list: UiShoppingList | null;
   onClose: () => void;
-  onToggleItem: (itemId: string) => void;
 }
 
-export function ShoppingListDetail({ list, onClose, onToggleItem }: ShoppingListDetailProps) {
-  const { t } = useLanguage();
+interface LoadedItems {
+  key: string | null;
+  items: UiShoppingListItem[];
+  error: string | null;
+}
 
-  const total = list?.items.length ?? 0;
-  const purchased = list?.items.filter((item) => item.isPurchased).length ?? 0;
+function toItem(product: ProductDto): UiShoppingListItem {
+  return {
+    id: product.id ?? '',
+    name: product.name,
+    imageUrl: product.imageUrl,
+    isPurchased: false,
+  };
+}
+
+export function ShoppingListDetail({ list, onClose }: ShoppingListDetailProps) {
+  const { t } = useLanguage();
+  const [state, setState] = useState<LoadedItems>({ key: null, items: [], error: null });
+  const [nonce, setNonce] = useState(0);
+
+  const listId = list?.id ?? null;
+
+  useEffect(() => {
+    if (!listId) return;
+    let active = true;
+    inventoryService
+      .getProductsForShoppingList(INVENTORY_ID, listId)
+      .then((response) => {
+        if (!active) return;
+        if (response.isSuccess) {
+          setState({ key: listId, items: response.data.map(toItem), error: null });
+        } else {
+          setState({ key: listId, items: [], error: response.error });
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setState({ key: listId, items: [], error: 'Unexpected error occurred' });
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [listId, nonce]);
+
+  const loading = listId !== null && state.key !== listId;
+  const error = listId !== null && state.key === listId ? state.error : null;
+  const items = listId !== null && state.key === listId ? state.items : [];
 
   return (
     <Dialog
@@ -27,7 +74,7 @@ export function ShoppingListDetail({ list, onClose, onToggleItem }: ShoppingList
       footer={
         <div className="flex items-center justify-between gap-3 text-xs text-muted">
           <span>
-            {purchased}/{total} {t('purchasedCount')}
+            {items.length} {t('items')}
           </span>
           {list?.dateOfCreation && (
             <span>
@@ -39,49 +86,35 @@ export function ShoppingListDetail({ list, onClose, onToggleItem }: ShoppingList
     >
       {list && (
         <div className="flex flex-col gap-4">
-          {list.items.length === 0 ? (
+          {loading ? (
+            <LoadingState />
+          ) : error ? (
+            <ErrorState message={error} onRetry={() => setNonce((value) => value + 1)} />
+          ) : items.length === 0 ? (
             <EmptyState icon={<ShoppingBasket size={20} />} title={t('listEmpty')} />
           ) : (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {list.items.map((item) => (
-                <button
+              {items.map((item) => (
+                <div
                   key={item.id}
-                  type="button"
-                  onClick={() => onToggleItem(item.id)}
-                  aria-pressed={item.isPurchased}
-                  title={t('togglePurchased')}
-                  className={cn(
-                    'flex flex-col gap-1.5 rounded-xl border bg-surface p-2 text-start transition-shadow hover:shadow-md',
-                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
-                    item.isPurchased ? 'border-primary/30' : 'border-line',
-                  )}
+                  className="flex flex-col gap-1.5 rounded-xl border border-line bg-surface p-2"
                 >
-                  <span className="relative flex aspect-square w-full items-center justify-center rounded-lg bg-mint/50">
+                  <span className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-mint/50">
                     {item.imageUrl ? (
-                      <img src={item.imageUrl} alt="" className="h-10 w-10" draggable={false} />
+                      <img
+                        src={item.imageUrl}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        draggable={false}
+                      />
                     ) : (
                       <ShoppingBasket size={22} className="text-primary-dark" />
                     )}
-                    <span className="absolute -end-1 -top-1 rounded-full bg-white p-0.5 shadow-sm ring-1 ring-line">
-                      {item.isPurchased ? (
-                        <CheckCircle2 size={15} className="text-primary" />
-                      ) : (
-                        <Circle size={15} className="text-muted" />
-                      )}
-                    </span>
                   </span>
-                  <span
-                    className={cn(
-                      'line-clamp-2 text-[11px] font-medium leading-tight',
-                      item.isPurchased ? 'text-muted line-through' : 'text-ink',
-                    )}
-                  >
+                  <span className="line-clamp-2 text-[11px] font-medium leading-tight text-ink">
                     {item.name}
                   </span>
-                  <span className="text-[10px] text-muted">
-                    {item.isPurchased ? t('purchased') : t('pending')}
-                  </span>
-                </button>
+                </div>
               ))}
             </div>
           )}

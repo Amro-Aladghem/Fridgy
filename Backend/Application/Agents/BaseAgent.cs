@@ -14,6 +14,11 @@ namespace Application.Agents
 {
     public abstract class BaseAgent : IAgent
     {
+        private static readonly JsonSerializerOptions DataJsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
         private readonly AgentChatCoordinator _agentChatCoordinator;
         private readonly ToolChatCoordinator _toolChatCoordinator;
         private readonly NotificationService _notificationService;
@@ -149,7 +154,7 @@ namespace Application.Agents
                 AgentType = _AgentType.ToString(),
                 InventoryId = inventoryId,
                 NotificationStatus = eNotificationStatus.Completed.ToString(),
-                Data= JsonSerializer.Serialize(agentResponseDto.Products),
+                Data= JsonSerializer.Serialize(agentResponseDto.Products, DataJsonOptions),
                 Text = agentResponseDto.Message,
             });
 
@@ -170,7 +175,7 @@ namespace Application.Agents
                 InventoryId = inventoryId,
                 NotificationStatus = eNotificationStatus.WaitingForUser.ToString(),
                 Text = agentResponseDto.Message,
-                Data = JsonSerializer.Serialize(agentResponseDto.Products),
+                Data = JsonSerializer.Serialize(agentResponseDto.Products, DataJsonOptions),
             });
 
             return agentRunResultDto;

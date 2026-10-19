@@ -9,4 +9,5 @@ export interface ChatDto {
   message: string;
   data?: string | null;
   showMessage: boolean;
+  isFinalResponse: boolean;
 }

@@ -3,12 +3,7 @@ import { CalendarPlus, Check, Package, Pencil, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
-import { StatusPill } from '@/components/ui/StatusPill';
-import {
-  expiryStateLabelKey,
-  getExpiryState,
-  productStatusLabels,
-} from '@/libs/productStatus';
+import { getExpiryState } from '@/libs/productStatus';
 import { formatDate, formatPrice, fromDateInputValue, toDateInputValue } from '@/libs/format';
 import { cn } from '@/libs/cn';
 import type { ProductDto } from '@/types/product';
@@ -93,7 +88,6 @@ export function ProductDetailsDialog({
     );
   }
 
-  const state = getExpiryState(product.expiryDate);
   const setField = (key: keyof FormState, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -168,21 +162,20 @@ export function ProductDetailsDialog({
       }
     >
       <div className="flex items-center gap-4">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-mint ring-1 ring-line">
+        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-mint ring-1 ring-line">
           {product.imageUrl ? (
-            <img src={product.imageUrl} alt="" className="h-11 w-11" draggable={false} />
+            <img
+              src={product.imageUrl}
+              alt=""
+              className="h-full w-full object-cover"
+              draggable={false}
+            />
           ) : (
             <Package size={28} className="text-primary-dark" />
           )}
         </span>
         <div className="min-w-0">
           <h3 className="truncate text-lg font-semibold text-ink">{product.name}</h3>
-          <div className="mt-1 flex items-center gap-2">
-            <StatusPill state={state} label={t(expiryStateLabelKey[state])} />
-            <span className="text-xs text-muted">
-              {productStatusLabels[product.productStatusId] ?? ''}
-            </span>
-          </div>
         </div>
       </div>
 

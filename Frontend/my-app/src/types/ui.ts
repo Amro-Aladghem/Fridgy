@@ -1,18 +1,9 @@
-import type { NotificationDto } from '@/types/notification';
 import type { ProductDto } from '@/types/product';
 import type { ShoppingListDto } from '@/types/shoppingList';
 
 export type ExpiryState = 'fresh' | 'approaching' | 'expired' | 'unknown';
 
-export interface FridgeProduct extends ProductDto {
-  xPct: number;
-  yPct: number;
-}
-
-export interface AppNotification extends NotificationDto {
-  title: string;
-  isRead: boolean;
-}
+export type FridgeProduct = ProductDto;
 
 export interface UiShoppingListItem {
   id: string;

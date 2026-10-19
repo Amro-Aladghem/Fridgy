@@ -24,7 +24,7 @@
             CancellationToken cancellationToken = default)
         {
             var apiKey = _configuration["OpenRouter:ApiKey"]
-                ?? throw new InvalidOperationException(
+                ?? throw new InvalidOperationException(        
                     "OpenRouter API key is missing.");
 
             using var request = new HttpRequestMessage(
