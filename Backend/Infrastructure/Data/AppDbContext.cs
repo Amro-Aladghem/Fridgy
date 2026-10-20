@@ -39,6 +39,9 @@ namespace Infrastructure.Data
                 agentType => Enum.Parse<eAgentType>(agentType)
             );
 
+            modelBuilder.Entity<Chat>().Property(p => p.AgentType)
+                .HasConversion<string>();
+
 
             modelBuilder.Entity<ProductStatus>().HasData(
                 new ProductStatus { Id = 1, Name = "Unknown", },

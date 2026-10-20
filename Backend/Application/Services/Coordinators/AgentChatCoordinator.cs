@@ -28,8 +28,8 @@ namespace Application.Services.Coordinators
             int roleId = agentChat switch
             {
                 InventoryAgentChat => (int)eAgentType.InventoryAgent,
-                MonitoringAgent => (int)eAgentType.MonitoringAgent,
-                ShoppingListAgent => (int)eAgentType.ShoppingAgent,
+                MonitorAgentChat => (int)eAgentType.MonitoringAgent,
+                ShoppingListAgentChat => (int)eAgentType.ShoppingAgent,
                 _=> throw new Exception("agent chat parameter is not IAgentChat")
             };
 
@@ -37,11 +37,41 @@ namespace Application.Services.Coordinators
         }
 
 
+        private eAgentType GetAgentTypeByIAgentChat(IAgentChat agentChat)
+        {
+            return agentChat switch
+            {
+                InventoryAgentChat => eAgentType.InventoryAgent,
+                MonitorAgentChat => eAgentType.MonitoringAgent,
+                ShoppingListAgentChat => eAgentType.ShoppingAgent,
+                _ => throw new Exception("agent chat parameter is not IAgentChat")
+            };
+        }
+
+
+        private List<ChatDto>? FilterChatHistoryByAgentType(List<ChatDto>?chatHistory, eAgentType agentType)
+        {
+            if (chatHistory is null)
+                return null;
+
+            string agentTypeName = agentType.ToString();
+
+            List<ChatDto>? chats = chatHistory.Where(c => c.AgentType == agentTypeName)
+                 .OrderBy(c => c.CreationTime)
+                 .ToList();
+
+            return chats;
+        }
+
         public async Task<AgentResponseDto?> GenerateAgentResponse(Guid chatSignture,Guid inventoryId,IAgentChat agentChat)
         {
             try
             {
+                eAgentType agentType = GetAgentTypeByIAgentChat(agentChat);
+
                 List<ChatDto>? chatHistory = await _chatService.GetChatsForChatId(inventoryId, chatSignture);
+
+                chatHistory = FilterChatHistoryByAgentType(chatHistory, agentType);
 
                 string? response = await agentChat.Chat(inventoryId, chatHistory);
 
@@ -59,6 +89,7 @@ namespace Application.Services.Coordinators
                 {
                     Message = response,
                     ChatRoleId = GetChatRoleIdByIAgentChat(agentChat),
+                    AgentType = agentType.ToString(),
                     ChatSignature = chatSignture,
                     InventoryId = inventoryId,
                     CreationTime = DateTime.UtcNow,

@@ -59,7 +59,9 @@ namespace Application.Tools
                 if (!_toolsDictionary.TryGetValue(toolName, out var toolExecutorModel))
                     throw new Exception($"Tool with name {toolName} is not exists,please check the correct name and try again");
 
-                object argument = TryToGetArgument(data, toolExecutorModel.ArgType,toolName);
+                object argument = data.ValueKind != JsonValueKind.Undefined
+                    ? TryToGetArgument(data, toolExecutorModel.ArgType, toolName)
+                    : new object { };
 
                 ToolResponse response = await toolExecutorModel.Execute(argument);
 

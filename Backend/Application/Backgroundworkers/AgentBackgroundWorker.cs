@@ -42,7 +42,7 @@ namespace Infrastructure.Backgroundworkers
                     await notificationService.CreateNotification(job.InventoryId, new NotificationDto()
                     {
                         ChatId = job.ChatSignture!.Value,
-                        AgentType = job.AgentType,
+                        AgentType = job.AgentType!,
                         NotificationStatus = eNotificationStatus.Running.ToString(),
                     });
 

@@ -20,7 +20,7 @@ namespace Application.Tools.Coordinator
         }
 
 
-        public async Task<ToolResponse> HandleToolExecuteAndSave(string toolName, JsonElement data,Guid chatSignture,Guid inventoryId)
+        public async Task<ToolResponse> HandleToolExecuteAndSave(string toolName, JsonElement data,Guid chatSignture,Guid inventoryId, eAgentType agentType)
         {
             ToolResponse toolResponse = await _toolExecutor.HandleExecuteTool(toolName, data);
 
@@ -28,9 +28,11 @@ namespace Application.Tools.Coordinator
             {
                 Message = toolResponse.Message,
                 ChatRoleId = (int)eChatRole.Tool,
+                AgentType = agentType.ToString(),
                 ChatSignature = chatSignture,
                 InventoryId = inventoryId,
                 CreationTime = DateTime.UtcNow,
+                Data = $"The Result Data From Tool With Name:${toolName}:"+toolResponse.Data
             });
 
             return toolResponse;

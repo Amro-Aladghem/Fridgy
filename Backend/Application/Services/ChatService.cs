@@ -1,5 +1,6 @@
 ﻿using Application.Dtos;
 using Domain.Enities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,7 @@ namespace Application.Services
                 ChatRoleId = dto.ChatRoleId,
                 Message = dto.Message,
                 Data=dto.Data,
+                AgentType = string.IsNullOrWhiteSpace(dto.AgentType) ? null : Enum.Parse<eAgentType>(dto.AgentType, true),
                 ShowMessage=dto.ShowMessage,
                 IsFinished=dto.IsFinalResponse
             };
@@ -41,7 +43,7 @@ namespace Application.Services
         public async Task<List<ChatDto>?> GetChatsForChatId(Guid inventoryId, Guid chatSignature)
         {
             List<ChatDto> chats= await _context.Chats
-                .Where(c => c.InventoryId == inventoryId && c.ChatSignature == chatSignature && c.ShowMessage)
+                .Where(c => c.InventoryId == inventoryId && c.ChatSignature == chatSignature)
                 .OrderBy(c => c.CreationTime)
                 .Select(c => ToDto(c))
                 .ToListAsync();
@@ -65,6 +67,7 @@ namespace Application.Services
                 ChatRoleId = c.ChatRoleId,
                 Message = c.Message,
                 Data=c.Data,
+                AgentType = c.AgentType.HasValue ? c.AgentType.Value.ToString() : null,
                 ShowMessage = c.ShowMessage,
                 IsFinalResponse = c.IsFinished
             };

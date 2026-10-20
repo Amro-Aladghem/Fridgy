@@ -28,6 +28,9 @@ namespace FridgyApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AgentType")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ChatRoleId")
                         .HasColumnType("int");
 

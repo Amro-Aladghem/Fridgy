@@ -74,6 +74,7 @@ namespace Presentation
                 ChatRoleId = (int)eChatRole.User,
                 Message = agentRequestDto.Message,
                 ImageUrl = agentRequestDto.ImageUri,
+                AgentType = agentType ?? agentRequestDto.AgentType,
                 ShowMessage = true,
                 CreationTime = DateTime.UtcNow
             });
@@ -106,7 +107,7 @@ namespace Presentation
             {
                 InventoryId = inventoryId,
                 ChatId = chatSignuture,
-                AgentType = monitorAgent
+                AgentType = monitorAgent,
             });
 
             agentRequestDto.AgentType = monitorAgent;

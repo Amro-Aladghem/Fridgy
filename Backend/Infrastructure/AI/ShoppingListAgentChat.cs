@@ -21,8 +21,8 @@ namespace Infrastructure.AI
             _model = _googleAI.GenerativeModel(Model.Gemini25Flash);
         }
 
-        private readonly static Content InventoryAgentSysPrompt = new Content(File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "Resources", "ShoppingListAgentChatSysPrompt.txt")
+        private readonly static Content ShoppingListAgentChatSysPrompt = new Content(File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "Resources", "ShoppingListAgentSysPrompt.txt")
         ));
 
         private string CreateFormatedPrompt(object? messagesContext, Guid inventoryId)
@@ -42,7 +42,7 @@ namespace Infrastructure.AI
 
             string prompt = CreateFormatedPrompt(messagesContext, inventoryId);
 
-            var request = new GenerateContentRequest(prompt, generationConfig: _generationConfiq, systemInstruction: InventoryAgentSysPrompt);
+            var request = new GenerateContentRequest(prompt, generationConfig: _generationConfiq, systemInstruction: ShoppingListAgentChatSysPrompt);
 
             var response = await _model.GenerateContent(request);
 

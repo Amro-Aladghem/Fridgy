@@ -115,9 +115,10 @@ namespace Application.Agents
                 await _toolChatCoordinator.HandleToolExecuteAndSave
                 (
                     agentResponseDto.ToolName,
-                    agentResponseDto.Data!.Value,
-                    inventoryId,
-                    chatSignture
+                    agentResponseDto.Data ?? new JsonElement(),
+                    chatSignture:chatSignture,
+                    inventoryId:inventoryId,
+                    agentType:_AgentType
                 );
             }
 

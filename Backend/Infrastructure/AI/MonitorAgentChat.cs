@@ -21,7 +21,7 @@ namespace Infrastructure.AI
             _model = _googleAI.GenerativeModel(Model.Gemini25Flash);
         }
 
-        private readonly static Content InventoryAgentSysPrompt = new Content(File.ReadAllText(
+        private readonly static Content MonitorAgentSysPrompt = new Content(File.ReadAllText(
             Path.Combine(AppContext.BaseDirectory, "Resources", "MonitorAgentSysPrompt.txt")
         ));
 
@@ -32,7 +32,9 @@ namespace Infrastructure.AI
             if (messagesContext is not null)
                 messagesContextAsString = "The Chat Context:" + JsonSerializer.Serialize(messagesContext);
 
-            string prompt = $"The INVENTORY_ID={inventoryId},{messagesContext}";
+            string dateTime = DateTime.UtcNow.Date.ToString("yyyy//mm//dd");
+
+            string prompt = $"The INVENTORY_ID={inventoryId},{messagesContextAsString} , Current Date(yyyy//mm//dd) Is :{dateTime}";
 
             return prompt;
         }
@@ -42,7 +44,7 @@ namespace Infrastructure.AI
 
             string prompt = CreateFormatedPrompt(messagesContext, inventoryId);
 
-            var request = new GenerateContentRequest(prompt, generationConfig: _generationConfiq, systemInstruction: InventoryAgentSysPrompt);
+            var request = new GenerateContentRequest(prompt, generationConfig: _generationConfiq, systemInstruction: MonitorAgentSysPrompt);
 
             var response = await _model.GenerateContent(request);
 

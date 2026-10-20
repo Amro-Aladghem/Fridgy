@@ -9,10 +9,10 @@ import type {
 } from '@/types/chatSession';
 
 const USER_CHAT_ROLE_ID = 4;
+const MONITOR_CHAT_ROLE_ID = 2;
 
 const roleToAgentType: Record<number, AgentType> = {
   1: 'InventoryAgent',
-  2: 'MonitoringAgent',
   3: 'ShoppingAgent',
 };
 
@@ -50,6 +50,8 @@ function buildRuns(notifications: NotificationDto[]): NotificationRun[] {
   let current: NotificationRun | null = null;
 
   for (const notification of ordered) {
+    if (notification.agentType === 'MonitoringAgent') continue;
+
     if (
       current === null ||
       notification.notificationStatus === 'Queued' ||
@@ -86,6 +88,9 @@ export function buildChatTimeline(
   let current: MutableGroup | null = null;
 
   for (const [index, message] of history.entries()) {
+    if (message.showMessage !== true) continue;
+    if (message.chatRoleId === MONITOR_CHAT_ROLE_ID) continue;
+
     if (message.chatRoleId === USER_CHAT_ROLE_ID) {
       current = null;
       const item: ChatTimelineUserItem = {

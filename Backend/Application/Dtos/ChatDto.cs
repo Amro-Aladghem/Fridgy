@@ -11,6 +11,7 @@ namespace Application.Dtos
         public int ChatRoleId { get; set; }
         public string Message { get; set; }
         public string? Data { get; set; }
+        public string? AgentType { get; set; }
         public bool ShowMessage { get; set; } = false;
 
         public bool IsFinalResponse { get; set; } = false;

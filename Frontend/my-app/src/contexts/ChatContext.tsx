@@ -10,7 +10,7 @@ import {
 import type { ReactNode } from 'react';
 import inventoryService from '@/services/inventoryService';
 import { INVENTORY_ID } from '@/libs/config';
-import { buildChatTimeline } from '@/libs/chatGrouping';
+import { buildChatTimeline, parseProductData } from '@/libs/chatGrouping';
 import { ChatRole } from '@/types/enums';
 import type { AgentType, NotificationStatus } from '@/types/enums';
 import type { ChatDto } from '@/types/chat';
@@ -98,6 +98,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [sending, setSending] = useState(false);
   const creatingRef = useRef(false);
   const notificationsJsonRef = useRef<string>('');
+  const notificationsRef = useRef<NotificationDto[]>([]);
+  const monitorTriggeredRef = useRef<Set<string>>(new Set());
 
   const loading = chatId !== null && loadedKey !== chatId;
 
@@ -108,7 +110,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const hasMessages = timeline.length > 0;
   const hasImage = useMemo(
-    () => history.some((item) => Boolean(item.imageUrl)),
+    () => history.some((item) => item.showMessage === true && Boolean(item.imageUrl)),
     [history],
   );
   const lastStatus = useMemo(() => latestStatus(notifications), [notifications]);
@@ -118,25 +120,30 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     let active = true;
     const key = chatId;
 
-    void Promise.all([
-      inventoryService.getChatsHistoryById(INVENTORY_ID, key),
-      inventoryService.getNotificationsForChat(INVENTORY_ID, key),
-    ])
-      .then(([historyResult, notificationsResult]) => {
+    const load = async () => {
+      try {
+        const notificationsResult = await inventoryService.getNotificationsForChat(INVENTORY_ID, key);
         if (!active) return;
         const notificationsData = notificationsResult.isSuccess ? notificationsResult.data : [];
         notificationsJsonRef.current = serialize(notificationsData);
-        setHistory(historyResult.isSuccess ? historyResult.data : []);
+        notificationsRef.current = notificationsData;
         setNotifications(notificationsData);
+
+        const historyResult = await inventoryService.getChatsHistoryById(INVENTORY_ID, key);
+        if (!active) return;
+        setHistory(historyResult.isSuccess ? historyResult.data : []);
         setLoadedKey(key);
-      })
-      .catch(() => {
+      } catch {
         if (!active) return;
         notificationsJsonRef.current = '[]';
+        notificationsRef.current = [];
         setHistory([]);
         setNotifications([]);
         setLoadedKey(key);
-      });
+      }
+    };
+
+    void load();
 
     return () => {
       active = false;
@@ -158,19 +165,60 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         if (cancelled || !result.isSuccess) return;
 
         const serialized = serialize(result.data);
-        if (serialized === notificationsJsonRef.current) return;
-        notificationsJsonRef.current = serialized;
-        setNotifications(result.data);
+        const changed = serialized !== notificationsJsonRef.current;
 
+        const ordered = orderedNotifications(result.data);
+        const last = ordered[ordered.length - 1];
         const status = latestStatus(result.data);
+        const isTerminal = status !== null && TERMINAL_STATUSES.includes(status);
+
+        if (!changed && !isTerminal) return;
+
         if (
-          status === 'WaitingForUser' ||
-          status === 'Completed' ||
-          status === 'Failed'
+          changed &&
+          last &&
+          last.agentType === 'InventoryAgent' &&
+          last.notificationStatus === 'Completed' &&
+          parseProductData(last.data).length > 0 &&
+          !monitorTriggeredRef.current.has(last.id)
         ) {
-          const historyResult = await inventoryService.getChatsHistoryById(INVENTORY_ID, chatId);
-          if (!cancelled && historyResult.isSuccess) setHistory(historyResult.data);
+          monitorTriggeredRef.current.add(last.id);
+          notificationsJsonRef.current = serialized;
+          notificationsRef.current = result.data;
+          setNotifications(result.data);
+          try {
+            const monitorResult = await inventoryService.callMonitorAgent(
+              INVENTORY_ID,
+              chatId,
+              {
+                chatSignture: chatId,
+                inventoryId: INVENTORY_ID,
+                message: '',
+                imageUri: null,
+                agentType: 'MonitoringAgent',
+              },
+            );
+            if (monitorResult.isSuccess) {
+              setRefreshToken((value) => value + 1);
+              return;
+            }
+          } catch {
+            // monitoring trigger failures are intentionally silent
+          }
         }
+
+        let nextHistory: ChatDto[] | null = null;
+        if (isTerminal) {
+          const historyResult = await inventoryService.getChatsHistoryById(INVENTORY_ID, chatId);
+          if (historyResult.isSuccess) nextHistory = historyResult.data;
+        }
+
+        if (cancelled) return;
+
+        notificationsJsonRef.current = serialized;
+        notificationsRef.current = result.data;
+        setNotifications(result.data);
+        if (nextHistory) setHistory(nextHistory);
       } catch {
         // polling failures are intentionally silent
       } finally {
