@@ -29,6 +29,8 @@ bld/
 .vscode/
 
 appsettings.Development.json
+appsettings.json
+
 
 Taskalyze-Backend-main/Services/Resources/
 

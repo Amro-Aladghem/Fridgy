@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light" />
+<meta name="description" content="Fridgy — عرض تقديمي يشرح المشكلة، المزايا، أنواع الوكلاء، وكيف يعمل محرّك الذكاء الاصطناعي." />
+<title>Fridgy — العرض التقديمي</title>
+<style>
+  :root{
+    --bg:#f3faf6;
+    --ink:#0f241a;
+    --muted:#5b7163;
+    --line:#d7e7dd;
+    --card:#ffffff;
+    --accent:#149a5b;
+    --accent-dark:#0b7145;
+    --accent-soft:#e3f6ec;
+    --amber:#c98118;
+    --amber-soft:#fdf1dd;
+    --blue:#2f7fbf;
+    --blue-soft:#e6f1fb;
+    --teal:#128c8c;
+    --teal-soft:#e0f5f5;
+    --grey:#84958b;
+    --grey-soft:#eef2ef;
+    --radius:18px;
+    --shadow:0 1px 2px rgba(15,36,26,.05), 0 10px 28px rgba(15,36,26,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:"Segoe UI", Tahoma, "Noto Kufi Arabic", Arial, sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 560px at 88% -10%, #ddf3e6 0%, rgba(221,243,230,0) 62%),
+      radial-gradient(900px 480px at -8% 112%, #e9f7f0 0%, rgba(233,247,240,0) 62%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  .deck{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding:18px clamp(16px,3vw,42px) 22px;
+  }
+  .icon{
+    width:24px;height:24px;
+    fill:none;stroke:currentColor;
+    stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+    flex:0 0 auto;
+  }
+
+  .topbar{display:flex;align-items:center;gap:16px;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;direction:ltr}
+  .brand__logo{
+    width:38px;height:38px;border-radius:12px;
+    background:var(--accent-soft);color:var(--accent-dark);
+    display:grid;place-items:center;
+  }
+  .brand__logo .icon{width:22px;height:22px}
+  .brand__name{font-size:18px;letter-spacing:.3px}
+  .progress{
+    flex:1;max-width:420px;height:6px;border-radius:99px;
+    background:#dcebe2;overflow:hidden;
+  }
+  .progress__bar{
+    height:100%;width:0;border-radius:inherit;
+    background:linear-gradient(270deg,var(--accent),#43bd82);
+    transition:width .3s ease;
+  }
+  .counter{
+    color:var(--muted);font-size:14px;white-space:nowrap;
+    min-width:64px;text-align:left;font-variant-numeric:tabular-nums;
+  }
+
+  .stage{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:clamp(14px,3vh,34px) 0;
+  }
+  .slide{display:none;width:100%;max-width:1120px}
+  .slide.is-active{display:block;animation:fade .35s ease both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion: reduce){
+    .slide.is-active{animation:none}
+    .progress__bar{transition:none}
+  }
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 13px;border-radius:99px;
+    background:var(--accent-soft);color:var(--accent-dark);
+    font-size:13px;font-weight:700;margin:0 0 14px;
+  }
+  .eyebrow .icon{width:16px;height:16px}
+  h1,h2{margin:0 0 12px;line-height:1.15;letter-spacing:-.3px}
+  h1{font-size:clamp(34px,5vw,64px);font-weight:800}
+  h2{font-size:clamp(26px,3.4vw,44px);font-weight:800}
+  .lead{
+    margin:0 0 26px;color:var(--muted);
+    font-size:clamp(15px,1.5vw,19px);line-height:1.75;max-width:850px;
+  }
+
+  .hero{text-align:center;max-width:900px;margin:0 auto}
+  .hero .lead{margin-left:auto;margin-right:auto}
+  .hero__chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .chip{
+    padding:8px 15px;border-radius:99px;background:#fff;
+    border:1px solid var(--line);color:var(--muted);font-size:14px;
+  }
+
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .grid--3{grid-template-columns:repeat(3,1fr)}
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .card h3{margin:0;font-size:17px}
+  .card p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .icon-badge{
+    width:44px;height:44px;border-radius:13px;
+    display:grid;place-items:center;
+    background:var(--accent-soft);color:var(--accent-dark);
+  }
+  .icon-badge .icon{width:22px;height:22px}
+  .icon-badge--amber{background:var(--amber-soft);color:var(--amber)}
+  .icon-badge--blue{background:var(--blue-soft);color:var(--blue)}
+  .icon-badge--teal{background:var(--teal-soft);color:var(--teal)}
+  .icon-badge--grey{background:var(--grey-soft);color:var(--grey)}
+
+  .agent{position:relative;padding-top:18px}
+  .agent .badge{
+    position:absolute;top:14px;left:14px;
+    font-size:11px;font-weight:700;padding:3px 9px;
+    border-radius:99px;background:var(--grey-soft);color:var(--grey);
+  }
+  .agent__name{
+    direction:ltr;text-align:right;
+    font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--muted);
+  }
+  .tag{
+    align-self:flex-start;font-size:11px;font-weight:700;
+    padding:3px 9px;border-radius:99px;
+    background:var(--grey-soft);color:var(--grey);
+  }
+
+  .flow{display:grid;gap:16px;grid-template-columns:repeat(4,1fr)}
+  .step{
+    position:relative;background:var(--card);
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;box-shadow:var(--shadow);
+  }
+  .step__num{
+    position:absolute;top:16px;left:16px;
+    width:26px;height:26px;border-radius:50%;
+    background:var(--accent);color:#fff;
+    font-size:13px;font-weight:700;display:grid;place-items:center;
+  }
+  .step .icon-badge{margin-bottom:12px}
+  .step h3{margin:0 0 6px;font-size:16px}
+  .step p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}
+
+  .timeline{display:grid;gap:14px;grid-template-columns:repeat(6,1fr)}
+  .timeline .step{padding:16px}
+  .timeline .step__num{top:14px;left:14px;width:24px;height:24px;font-size:12px}
+  .timeline .step .icon-badge{width:38px;height:38px;margin-bottom:10px}
+  .timeline .step .icon-badge .icon{width:19px;height:19px}
+  .timeline .step h3{font-size:14.5px}
+  .timeline .step p{font-size:13px;line-height:1.6}
+
+  .callout{
+    margin-top:22px;padding:16px 20px;border-radius:14px;
+    background:linear-gradient(270deg,var(--accent-soft),#f4fbf7);
+    border:1px solid #cfe9da;color:var(--accent-dark);
+    font-weight:700;font-size:15px;text-align:center;
+  }
+  .hint{margin-top:20px;text-align:center;color:var(--muted);font-size:13px}
+  .hint kbd{
+    background:#fff;border:1px solid var(--line);border-bottom-width:2px;
+    border-radius:6px;padding:1px 7px;font-family:inherit;font-size:12px;
+  }
+
+  .controls{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .btn{
+    appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);
+    font-family:inherit;font-size:15px;font-weight:700;
+    padding:11px 18px;border-radius:12px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn--primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn .icon{width:18px;height:18px}
+  .dots{display:flex;gap:8px;align-items:center}
+  .dot{
+    width:9px;height:9px;border-radius:50%;border:0;padding:0;
+    background:#c6d9cd;cursor:pointer;
+  }
+  .dot.is-active{background:var(--accent);width:22px;border-radius:99px}
+
+  @media (max-width: 980px){
+    .flow{grid-template-columns:repeat(2,1fr)}
+    .timeline{grid-template-columns:repeat(3,1fr)}
+    .grid--3{grid-template-columns:1fr}
+  }
+  @media (max-width: 600px){
+    .flow,.timeline{grid-template-columns:1fr}
+    .counter{display:none}
+    .btn{padding:10px 14px;font-size:14px}
+    .brand__name{display:none}
+  }
+</style>
+</head>
+<body>
+
+<svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <symbol id="i-fridge" viewBox="0 0 24 24">
+      <rect x="6" y="2.5" width="12" height="19" rx="2.5"/>
+      <line x1="6" y1="10" x2="18" y2="10"/>
+      <line x1="9" y1="5.5" x2="9" y2="8"/>
+      <line x1="9" y1="13" x2="9" y2="16.5"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <path d="M4 7h16"/>
+      <path d="M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/>
+      <path d="M6.5 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4L17.5 7"/>
+      <line x1="10" y1="11" x2="10" y2="17"/>
+      <line x1="14" y1="11" x2="14" y2="17"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5"/>
+      <path d="M12 7.5V12l3 2"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="10.5" cy="10.5" r="6"/>
+      <line x1="15" y1="15" x2="20.5" y2="20.5"/>
+    </symbol>
+    <symbol id="i-list" viewBox="0 0 24 24">
+      <line x1="9" y1="6" x2="20" y2="6"/>
+      <line x1="9" y1="12" x2="20" y2="12"/>
+      <line x1="9" y1="18" x2="20" y2="18"/>
+      <circle cx="4.5" cy="6" r="1"/>
+      <circle cx="4.5" cy="12" r="1"/>
+      <circle cx="4.5" cy="18" r="1"/>
+    </symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24">
+      <path d="M20.5 14.5a2.5 2.5 0 0 1-2.5 2.5H8.5L4 20V5.5A2.5 2.5 0 0 1 6.5 3h11.5a2.5 2.5 0 0 1 2.5 2.5z"/>
+      <line x1="8.5" y1="8" x2="15.5" y2="8"/>
+      <line x1="8.5" y1="12" x2="13.5" y2="12"/>
+    </symbol>
+    <symbol id="i-box" viewBox="0 0 24 24">
+      <path d="M20.5 8.2 12 3.5 3.5 8.2 12 12.9z"/>
+      <path d="M3.5 8.2v7.6L12 20.5l8.5-4.7V8.2"/>
+      <line x1="12" y1="12.9" x2="12" y2="20.5"/>
+    </symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24">
+      <rect x="3" y="6.5" width="18" height="13.5" rx="2.5"/>
+      <circle cx="12" cy="13.2" r="3.6"/>
+      <path d="M8.5 6.5 10 4.2h4l1.5 2.3"/>
+    </symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24">
+      <path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.2 7.5-2.2 7.5h16.4S18 14.5 18 8.5"/>
+      <path d="M9.7 19.5a2.5 2.5 0 0 0 4.6 0"/>
+    </symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24">
+      <circle cx="9.5" cy="20" r="1.3"/>
+      <circle cx="18" cy="20" r="1.3"/>
+      <path d="M2.5 4h2.2l2.4 11h11.5L21 7.5H6"/>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+      <path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/>
+      <path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/>
+    </symbol>
+    <symbol id="i-database" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="5.5" rx="7.5" ry="3"/>
+      <path d="M4.5 5.5v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/>
+      <path d="M4.5 11.5v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/>
+    </symbol>
+    <symbol id="i-route" viewBox="0 0 24 24">
+      <circle cx="6" cy="6" r="2.2"/>
+      <circle cx="18" cy="6" r="2.2"/>
+      <circle cx="12" cy="18" r="2.2"/>
+      <path d="M8.2 6h7.6"/>
+      <path d="M6 8.2v3.3a4 4 0 0 0 4 4h.5"/>
+      <path d="M18 8.2v3.3a4 4 0 0 1-4 4h-.5"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="M20 6.5 9.5 17 4 11.5"/>
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.6"/>
+      <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>
+    </symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24">
+      <line x1="4" y1="12" x2="19.5" y2="12"/>
+      <path d="M13 5.5 19.5 12 13 18.5"/>
+    </symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24">
+      <line x1="20" y1="12" x2="4.5" y2="12"/>
+      <path d="M11 5.5 4.5 12 11 18.5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="deck">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__logo"><svg class="icon" aria-hidden="true"><use href="#i-fridge"/></svg></span>
+      <span class="brand__name">Fridgy</span>
+    </div>
+    <div class="progress" aria-hidden="true"><div class="progress__bar" id="progressBar"></div></div>
+    <div class="counter" id="counter" aria-live="polite">١ / ٨</div>
+  </header>
+
+  <main class="stage">
+
+    <!-- 1 -->
+    <section class="slide is-active" aria-label="الغلاف">
+      <div class="hero">
+        <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg> Fridgy</div>
+        <h1>ثلاجتك… يديرها الذكاء الاصطناعي</h1>
+        <p class="lead">مساعد ذكي يتتبّع مخزونك، يراقب صلاحية طعامك، ويجهّز قوائم تسوّقك — كل ذلك عبر محادثة بسيطة.</p>
+        <div class="hero__chips">
+          <span class="chip">مخزون ذكي</span>
+          <span class="chip">مراقبة الصلاحية</span>
+          <span class="chip">قوائم شراء</span>
+        </div>
+        <p class="hint">استخدم <kbd>←</kbd> أو <kbd>المسافة</kbd> للانتقال بين الشرائح</p>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" aria-label="المشكلة">
+      <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg> المشكلة</div>
+      <h2>لماذا يحتاج المستخدم إلى Fridgy؟</h2>
+      <p class="lead">أصناف تُنسى في الثلاجة، وأخرى تُشترى مكرّرة… هذا ما نعيشه كل يوم.</p>
+      <div class="grid">
+        <article class="card">
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></div>
+          <h3>هدر الطعام</h3>
+          <p>نشتري أكثر مما نحتاج، ثم ننسى ما لدينا فينتهي في سلة المهملات.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--amber"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></div>
+          <h3>انتهاء الصلاحية</h3>
+          <p>تنتهي صلاحية المنتجات دون تنبيه مسبق.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--blue"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></div>
+          <h3>مخزون مجهول</h3>
+          <p>لا نعرف ما الموجود فعلًا في الثلاجة ولا الكميات المتبقية.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg></div>
+          <h3>قوائم شراء يدوية</h3>
+          <p>تُكتب على عجل، وتنسى أصنافًا أساسية.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--grey"><svg class="icon" aria-hidden="true"><use href="#i-route"/></svg></div>
+          <h3>تتبّع مرهق</h3>
+          <p>متابعة الصلاحية والكميات يدويًا أمر متكرر ومزعج.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" aria-label="الحل">
+      <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg> الحل</div>
+      <h2>ماذا يحلّ Fridgy؟</h2>
+      <p class="lead">يحوّل إدارة الثلاجة من عمل يدوي متكرر إلى مساعد يفهمك وينفّذ عنك.</p>
+      <div class="grid">
+        <article class="card">
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></div>
+          <h3>تقليل الهدر</h3>
+          <p>يذكّرك بما لديك قبل أن يفسد.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--blue"><svg class="icon" aria-hidden="true"><use href="#i-box"/></svg></div>
+          <h3>مخزون واضح</h3>
+          <p>صورة محدّثة عن كل منتج وكميته.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--amber"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg></div>
+          <h3>تنبيهات مبكرة</h3>
+          <p>إشعار قبل انتهاء الصلاحية.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg></div>
+          <h3>شراء أذكى</h3>
+          <p>قوائم مبنية على النقص الفعلي، لا على التخمين.</p>
+        </article>
+      </div>
+      <div class="callout">النتيجة: طعام أقل هدرًا، ومال أوفر، ووقت أقل في التتبّع.</div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" aria-label="المزايا">
+      <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> المزايا</div>
+      <h2>ما يقدّمه Fridgy</h2>
+      <p class="lead">كل ما تحتاجه لإدارة ثلاجتك في مكان واحد.</p>
+      <div class="grid">
+        <article class="card">
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg></div>
+          <h3>محادثة ذكية</h3>
+          <p>اكتب طلبك بلغتك الطبيعية، وFridgy يفهم ويُنفّذ.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--blue"><svg class="icon" aria-hidden="true"><use href="#i-box"/></svg></div>
+          <h3>إدارة المخزون</h3>
+          <p>إضافة المنتجات، البحث عنها، تعديلها وحذفها.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-camera"/></svg></div>
+          <h3>إضافة من صورة</h3>
+          <p>صوّر محتوى الثلاجة أو فاتورة الشراء، واستخرج المنتجات.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--amber"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></div>
+          <h3>مراقبة الصلاحية</h3>
+          <p>متابعة الحالة والتنبيه قبل انتهاء الصلاحية.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg></div>
+          <h3>قوائم الشراء</h3>
+          <p>إنشاء القوائم وإدارة منتجاتها بسهولة.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--amber"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg></div>
+          <h3>إشعارات فورية</h3>
+          <p>تحديث كل إجراء يصل إليك مباشرة.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" aria-label="أنواع الوكلاء">
+      <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-route"/></svg> الوكلاء</div>
+      <h2>وكلاء Fridgy</h2>
+      <p class="lead">كل وكيل متخصّص بمهمة، والموجّه يختار الأنسب لطلبك تلقائيًا.</p>
+      <div class="grid">
+        <article class="card agent">
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-box"/></svg></div>
+          <span class="agent__name">InventoryAgent</span>
+          <h3>وكيل المخزون</h3>
+          <p>يدير المنتجات والمخزون: إضافة، بحث، تعديل، حذف، والكميات.</p>
+        </article>
+        <article class="card agent">
+          <div class="icon-badge icon-badge--amber"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></div>
+          <span class="agent__name">MonitoringAgent</span>
+          <h3>وكيل المراقبة</h3>
+          <p>يراقب الصلاحية والحالة، ويقترح إجراءات أو مشتريات.</p>
+        </article>
+        <article class="card agent">
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg></div>
+          <span class="agent__name">ShoppingAgent</span>
+          <h3>وكيل التسوّق</h3>
+          <p>ينشئ قوائم الشراء ويديرها ويحدّد ما يجب شراؤه.</p>
+        </article>
+        <article class="card agent">
+          <span class="badge">مخطّط</span>
+          <div class="icon-badge icon-badge--grey"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg></div>
+          <span class="agent__name">CookingAgent</span>
+          <h3>وكيل الطبخ</h3>
+          <p>قيد التطوير؛ سيساعد في اقتراح الوصفات.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" aria-label="كيف يعمل المحرك">
+      <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg> المحرّك</div>
+      <h2>كيف يعمل محرّك Fridgy؟</h2>
+      <p class="lead">من رسالتك إلى النتيجة، بأربع خطوات واضحة.</p>
+      <div class="flow">
+        <article class="step">
+          <span class="step__num">١</span>
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg></div>
+          <h3>أنت تكتب</h3>
+          <p>رسالة نصية أو صورة.</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٢</span>
+          <div class="icon-badge icon-badge--blue"><svg class="icon" aria-hidden="true"><use href="#i-route"/></svg></div>
+          <h3>الموجّه يختار</h3>
+          <p>يحدّد الوكيل الأنسب لطلبك.</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٣</span>
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg></div>
+          <h3>الوكيل يفكّر</h3>
+          <p>يحلّل الطلب ويخطّط للخطوات.</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٤</span>
+          <div class="icon-badge icon-badge--amber"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></div>
+          <h3>ينفّذ ويردّ</h3>
+          <p>يستخدم الأدوات ثم يعطيك النتيجة.</p>
+        </article>
+      </div>
+      <div class="callout">كل ذلك يحدث في الخلفية — بسرعة ودون تعقيد عليك.</div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" aria-label="الأدوات">
+      <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-database"/></svg> الأدوات</div>
+      <h2>كيف ينفّذ الوكيل المهام؟</h2>
+      <p class="lead">الوكيل لا يخمّن؛ بل يستخدم أدوات متخصّصة لإنجاز الطلب.</p>
+      <div class="grid grid--3">
+        <article class="card">
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-database"/></svg></div>
+          <h3>أدوات قاعدة البيانات</h3>
+          <p>إنشاء البيانات، قراءتها، تعديلها وحذفها.</p>
+        </article>
+        <article class="card">
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-camera"/></svg></div>
+          <h3>أداة الاستخراج</h3>
+          <p>تحويل صورة إلى منتجات مفهومة.</p>
+        </article>
+        <article class="card">
+          <span class="tag">قريبًا</span>
+          <div class="icon-badge icon-badge--grey"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></div>
+          <h3>أداة البحث</h3>
+          <p>بحث أذكى في المنتجات والمعلومات.</p>
+        </article>
+      </div>
+      <div class="callout">الوكيل يختار الأداة المناسبة تلقائيًا حسب نوع الطلب.</div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" aria-label="من البداية إلى النهاية">
+      <div class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> من البداية إلى النهاية</div>
+      <h2>رحلة طلب واحد</h2>
+      <p class="lead">مثال: «أضف الحليب إلى المخزون».</p>
+      <div class="timeline">
+        <article class="step">
+          <span class="step__num">١</span>
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg></div>
+          <h3>السؤال</h3>
+          <p>«أضف الحليب إلى المخزون.»</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٢</span>
+          <div class="icon-badge icon-badge--blue"><svg class="icon" aria-hidden="true"><use href="#i-route"/></svg></div>
+          <h3>الفهم</h3>
+          <p>الموجّه يختار وكيل المخزون.</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٣</span>
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-database"/></svg></div>
+          <h3>التنفيذ</h3>
+          <p>الوكيل يستخدم أدوات قاعدة البيانات.</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٤</span>
+          <div class="icon-badge"><svg class="icon" aria-hidden="true"><use href="#i-box"/></svg></div>
+          <h3>الحفظ</h3>
+          <p>تُسجَّل البيانات ويُحدَّث المخزون.</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٥</span>
+          <div class="icon-badge icon-badge--amber"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg></div>
+          <h3>الإشعار</h3>
+          <p>تصل التحديثات إلى المستخدم.</p>
+        </article>
+        <article class="step">
+          <span class="step__num">٦</span>
+          <div class="icon-badge icon-badge--teal"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></div>
+          <h3>الإجابة</h3>
+          <p>يردّ Fridgy بالنتيجة.</p>
+        </article>
+      </div>
+      <div class="callout">بسيط للمستخدم… منظّم ومتخصّص في الخلفية.</div>
+    </section>
+
+  </main>
+
+  <footer class="controls">
+    <button class="btn" id="prevBtn" type="button">
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      السابق
+    </button>
+    <div class="dots" id="dots" aria-label="التنقل بين الشرائح"></div>
+    <button class="btn btn--primary" id="nextBtn" type="button">
+      التالي
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>
+    </button>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var total = slides.length;
+    var index = 0;
+
+    var counter = document.getElementById('counter');
+    var bar = document.getElementById('progressBar');
+    var dotsWrap = document.getElementById('dots');
+    var prevBtn = document.getElementById('prevBtn');
+    var nextBtn = document.getElementById('nextBtn');
+
+    var AR = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    function toAr(n) {
+      return String(n).replace(/\d/g, function (d) { return AR[Number(d)]; });
+    }
+
+    slides.forEach(function (_, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'dot';
+      dot.setAttribute('aria-label', 'الشريحة ' + toAr(i + 1));
+      dot.addEventListener('click', function () {
+        index = i;
+        render();
+      });
+      dotsWrap.appendChild(dot);
+    });
+
+    var dots = Array.prototype.slice.call(dotsWrap.querySelectorAll('.dot'));
+
+    function render() {
+      slides.forEach(function (slide, i) {
+        var active = i === index;
+        slide.classList.toggle('is-active', active);
+        slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+      });
+      dots.forEach(function (dot, i) {
+        dot.classList.toggle('is-active', i === index);
+      });
+      counter.textContent = toAr(index + 1) + ' / ' + toAr(total);
+      bar.style.width = (((index + 1) / total) * 100) + '%';
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === total - 1;
+    }
+
+    function next() {
+      if (index < total - 1) {
+        index += 1;
+        render();
+      }
+    }
+
+    function prev() {
+      if (index > 0) {
+        index -= 1;
+        render();
+      }
+    }
+
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === ' ' || e.key === 'ArrowLeft' || e.key === 'PageDown') {
+        e.preventDefault();
+        next();
+      } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+        e.preventDefault();
+        prev();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        index = 0;
+        render();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        index = total - 1;
+        render();
+      }
+    });
+
+    render();
+  })();
+</script>
+
+</body>
+</html>
